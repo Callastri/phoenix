@@ -1,0 +1,65 @@
+/* Opmaak per scherm. */
+
+.schermtitel { font-size: 1.6rem; margin: 8px 0; }
+
+/* Dagboek: datumbalk */
+.datum-balk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.datum-label {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+/* Het datumveld ligt onzichtbaar over de tekst: tik op de datum = kalender. */
+.datum-kiezer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+}
+
+/* Dagboek: totalen */
+.totaal-kcal { text-align: center; margin: 4px 0 8px; }
+.totaal-kcal .groot { font-size: 2.2rem; font-weight: 700; }
+.totaal-raster {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+.totaal-raster div { text-align: center; }
+.totaal-raster dt { font-size: 0.8rem; color: var(--tekst-zacht); }
+.totaal-raster dd { margin: 0; font-weight: 600; }
+
+/* Dagboek: maaltijden */
+.maaltijd h2 { display: flex; justify-content: space-between; }
+.regels { list-style: none; margin: 0; padding: 0; }
+.regel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "naam kcal" "hoeveelheid kcal";
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 0;
+  border: none;
+  border-top: 1px solid var(--rand);
+  background: none;
+  color: var(--tekst);
+  text-align: left;
+  cursor: pointer;
+}
+.regel-naam { grid-area: naam; font-weight: 600; overflow-wrap: anywhere; }
+.regel-hoeveelheid { grid-area: hoeveelheid; color: var(--tekst-zacht); font-size: 0.9rem; }
+.regel-kcal { grid-area: kcal; align-self: center; padding-left: 12px; }
+.knop-toevoegen {
+  width: 100%;
+  margin-top: 8px;
+  border-style: dashed;
+  color: var(--accent);
+}

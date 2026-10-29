@@ -1,0 +1,21 @@
+{
+  "name": "voedingsdagboek",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Gratis voedingsdagboek zonder advertenties, account of tracking.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dexie": "^4.4.7"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.2.6",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

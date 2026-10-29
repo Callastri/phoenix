@@ -1,0 +1,37 @@
+/* Kleuren voor het lichte en donkere thema.
+   Wil je andere kleuren? Pas ze hier aan; de rest van de app gebruikt deze namen. */
+
+:root {
+  color-scheme: light dark;
+  --achtergrond: #f6f7f5;
+  --vlak: #ffffff;
+  --tekst: #1c1f1a;
+  --tekst-zacht: #5b6456;
+  --rand: #dde2d9;
+  --accent: #2e7a4d;
+  --accent-tekst: #ffffff;
+  --accent-zacht: #e3f1e8;
+  --gevaar: #b3261e;
+  --gevaar-tekst: #ffffff;
+  --let-op-vlak: #fff3d1;
+  --let-op-tekst: #573f00;
+  --schaduw: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --achtergrond: #151814;
+    --vlak: #20241f;
+    --tekst: #e8ece5;
+    --tekst-zacht: #a4ad9f;
+    --rand: #353b33;
+    --accent: #6cc28f;
+    --accent-tekst: #0d1f14;
+    --accent-zacht: #1f3a29;
+    --gevaar: #f2948c;
+    --gevaar-tekst: #2a0906;
+    --let-op-vlak: #3a2f0f;
+    --let-op-tekst: #f5dfa1;
+    --schaduw: none;
+  }
+}
