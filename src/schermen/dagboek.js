@@ -3,6 +3,8 @@
 
 import { el } from '../onderdelen/html.js'
 import { openRegelDialoog } from '../onderdelen/regelDialoog.js'
+import { openProductDialoog } from '../onderdelen/productDialoog.js'
+import { productVoorRegel } from '../diensten/producten.js'
 import { toonMelding } from '../onderdelen/melding.js'
 import { MAALTIJDEN, MAALTIJD_SLEUTELS } from '../gegevens/maaltijden.js'
 import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
@@ -11,7 +13,7 @@ import { vandaag, verschuifDag, toonDatum, isGeldigeDatum } from '../berekeninge
 import { toonGetal } from '../berekeningen/getallen.js'
 import { totaalVanRegels, totaalPerMaaltijd, waardenVanRegel } from '../berekeningen/voeding.js'
 import { moetBackupHerinneren } from '../berekeningen/herinnering.js'
-import { regelsVanDag, aantalRegels } from '../opslag/dagboek.js'
+import { regelsVanDag, aantalRegels, kopieerMaaltijd } from '../opslag/dagboek.js'
 import { leesInstelling } from '../opslag/instellingen.js'
 import { isIos, isGeinstalleerd } from '../diensten/toestel.js'
 import { toonInstallUitleg } from './installeren.js'
@@ -83,20 +85,37 @@ function maakTotalen(totaal) {
   )
 }
 
+// Toont de hoeveelheid van een regel, bijvoorbeeld "50 g" of "2 × snee (70 g)".
+function toonHoeveelheid(regel) {
+  const getal = (n) => toonGetal(n, n % 1 ? 1 : 0)
+  if (regel.eenheid === 'portie') return `${getal(regel.hoeveelheid)} × ${regel.portieNaam} (${getal(regel.gram)} ${regel.basisEenheid})`
+  return `${getal(regel.hoeveelheid)} ${regel.eenheid}`
+}
+
+// Opent de juiste dialoog om een regel aan te passen.
+async function pasRegelAan(regel) {
+  if (regel.productRef) {
+    const product = await productVoorRegel(regel)
+    return openProductDialoog({ product, datum: regel.datum, maaltijd: regel.maaltijd, regel })
+  }
+  return openRegelDialoog({ datum: regel.datum, maaltijd: regel.maaltijd, regel })
+}
+
 // Eén maaltijd met zijn regels en een knop om toe te voegen.
-function maakMaaltijd(maaltijd, regels, totaal, datum, herteken) {
+// "vorigeDag" = { datum, aantal } — om die maaltijd van de vorige dag te kopiëren.
+function maakMaaltijd(maaltijd, regels, totaal, datum, vorigeDag, herteken) {
   const lijst = regels.map((regel) => {
     const kcal = waardenVanRegel(regel).kcal
     return el('li', {},
       el('button', {
         type: 'button', class: 'regel',
         onclick: async () => {
-          const uitkomst = await openRegelDialoog({ datum, maaltijd: maaltijd.sleutel, regel })
+          const uitkomst = await pasRegelAan(regel)
           if (uitkomst) { toonMelding(uitkomst === 'verwijderd' ? 'Verwijderd' : 'Opgeslagen'); herteken() }
         }
       },
         el('span', { class: 'regel-naam' }, regel.naam),
-        el('span', { class: 'regel-hoeveelheid' }, `${toonGetal(regel.hoeveelheid, regel.hoeveelheid % 1 ? 1 : 0)} ${regel.eenheid}`),
+        el('span', { class: 'regel-hoeveelheid' }, toonHoeveelheid(regel)),
         el('span', { class: 'regel-kcal' }, kcal === null ? '– kcal' : `${toonGetal(kcal)} kcal`)
       )
     )
@@ -107,12 +126,19 @@ function maakMaaltijd(maaltijd, regels, totaal, datum, herteken) {
       el('span', { class: 'zacht' }, toonTotaal(totaal.kcal, 0, 'kcal'))
     ),
     lijst.length ? el('ul', { class: 'regels' }, lijst) : null,
-    el('button', {
-      type: 'button', class: 'knop knop-toevoegen',
-      onclick: async () => {
-        const uitkomst = await openRegelDialoog({ datum, maaltijd: maaltijd.sleutel })
-        if (uitkomst) { toonMelding('Toegevoegd'); herteken() }
-      }
+    // Kopiëren kan alleen als deze maaltijd nog leeg is (zo komt niets dubbel).
+    lijst.length === 0 && vorigeDag.aantal > 0
+      ? el('button', {
+          type: 'button', class: 'knop knop-kopieer',
+          onclick: async () => {
+            const aantal = await kopieerMaaltijd(vorigeDag.datum, datum, maaltijd.sleutel)
+            toonMelding(`${aantal} ${aantal === 1 ? 'regel' : 'regels'} gekopieerd`)
+            herteken()
+          }
+        }, `↺ Zelfde als ${datum === vandaag() ? 'gisteren' : 'vorige dag'} (${vorigeDag.aantal})`)
+      : null,
+    el('a', {
+      class: 'knop knop-toevoegen', href: `#/toevoegen/${datum}/${maaltijd.sleutel}`
     }, `+ Toevoegen aan ${maaltijd.naam.toLowerCase()}`)
   )
 }
@@ -124,6 +150,8 @@ export async function toonDagboek(container, [datumUitAdres] = []) {
   const herteken = () => toonDagboek(container, [datum])
 
   const regels = await regelsVanDag(datum)
+  const vorigeDatum = verschuifDag(datum, -1)
+  const regelsVorigeDag = await regelsVanDag(vorigeDatum)
   const perMaaltijd = totaalPerMaaltijd(regels, MAALTIJD_SLEUTELS)
   const meldingen = await maakMeldingen()
 
@@ -131,7 +159,11 @@ export async function toonDagboek(container, [datumUitAdres] = []) {
     maakDatumBalk(datum),
     ...meldingen,
     maakTotalen(totaalVanRegels(regels)),
-    ...MAALTIJDEN.map((m) => maakMaaltijd(m, regels.filter((r) => r.maaltijd === m.sleutel), perMaaltijd[m.sleutel], datum, herteken)),
+    ...MAALTIJDEN.map((m) => maakMaaltijd(
+      m, regels.filter((r) => r.maaltijd === m.sleutel), perMaaltijd[m.sleutel], datum,
+      { datum: vorigeDatum, aantal: regelsVorigeDag.filter((r) => r.maaltijd === m.sleutel).length },
+      herteken
+    )),
     datum !== vandaag()
       ? el('button', { type: 'button', class: 'knop knop-breed', onclick: () => gaNaarDag(vandaag()) }, 'Naar vandaag')
       : null

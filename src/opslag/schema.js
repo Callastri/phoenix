@@ -27,10 +27,27 @@ export const VERSIES = [
       instellingen: '&sleutel'
     },
     migratie: null
+  },
+  {
+    // Versie 2 (fase 2): nieuwe tabel "favorieten".
+    // Bestaande gegevens hoeven niet omgezet te worden.
+    versie: 2,
+    tabellen: {
+      producten: '++id, barcode, naam',
+      porties: '++id, nevoCode',
+      recepten: '++id, naam',
+      dagboek: '++id, datum, [datum+maaltijd]',
+      gewicht: '++id, &datum',
+      bewegingssoorten: '++id',
+      beweging: '++id, datum',
+      instellingen: '&sleutel',
+      favorieten: '&sleutel'
+    },
+    migratie: null
   }
   // Voorbeeld voor later:
   // {
-  //   versie: 2,
+  //   versie: 3,
   //   tabellen: { ...alle tabellen... },
   //   migratie: {
   //     dagboek: (regel) => ({ ...regel, notitie: '' })

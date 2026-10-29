@@ -35,6 +35,14 @@ function controleerEenheid(eenheid, fouten, toegestaan = ['g', 'ml']) {
   if (!toegestaan.includes(eenheid)) fouten.push(`Eenheid moet ${toegestaan.join(' of ')} zijn.`)
 }
 
+// Een verwijzing naar een product: { soort: 'nevo' | 'eigen' | 'off', id: getal }
+export function controleerProductRef(ref) {
+  if (!isObject(ref) || !['nevo', 'eigen', 'off'].includes(ref.soort) || !(Number.isInteger(ref.id) && ref.id > 0)) {
+    return ['Ongeldige verwijzing naar product.']
+  }
+  return []
+}
+
 // --- Voedingswaarden ------------------------------------------------------
 
 // Controleert voedingswaarden per 100 g of 100 ml.
@@ -67,12 +75,17 @@ export function controleerDagboekregel(regel) {
   if (!isGeldigeDatum(regel.datum)) fouten.push('Ongeldige datum.')
   if (!MAALTIJD_SLEUTELS.includes(regel.maaltijd)) fouten.push('Onbekende maaltijd.')
   controleerNaam(regel.naam, fouten)
-  controleerEenheid(regel.eenheid, fouten)
+  controleerEenheid(regel.eenheid, fouten, ['g', 'ml', 'portie'])
+  if (regel.eenheid === 'portie') {
+    controleerNaam(regel.portieNaam, fouten, 'Naam van portie')
+    if (!isGetal(regel.portieGram) || regel.portieGram <= 0 || regel.portieGram > MAX_HOEVEELHEID) fouten.push('Ongeldig gewicht van portie.')
+    if (!['g', 'ml'].includes(regel.basisEenheid)) fouten.push('Portie zonder eenheid (g of ml).')
+  }
   if (!isGetal(regel.hoeveelheid) || regel.hoeveelheid <= 0) fouten.push('Hoeveelheid moet groter dan 0 zijn.')
   else if (regel.hoeveelheid > MAX_HOEVEELHEID) fouten.push(`Hoeveelheid kan niet meer zijn dan ${MAX_HOEVEELHEID}.`)
   else if (!isGetal(regel.gram) || regel.gram <= 0 || regel.gram > MAX_HOEVEELHEID) fouten.push('Ongeldige hoeveelheid in gram/ml.')
   if (regel.productRef !== null && regel.productRef !== undefined) {
-    if (!isObject(regel.productRef) || typeof regel.productRef.soort !== 'string') fouten.push('Ongeldige verwijzing naar product.')
+    fouten.push(...controleerProductRef(regel.productRef))
   }
   fouten.push(...controleerWaarden(regel.waarden))
   if (regel.aangemaakt !== undefined && !isGeldigTijdstip(regel.aangemaakt)) fouten.push('Ongeldig tijdstip van aanmaken.')
@@ -91,6 +104,9 @@ export function controleerProduct(product) {
     fouten.push('Ongeldige barcode.')
   }
   fouten.push(...controleerWaarden(product.waarden))
+  if (product.gebaseerdOpNevo !== undefined && product.gebaseerdOpNevo !== null && !(Number.isInteger(product.gebaseerdOpNevo) && product.gebaseerdOpNevo > 0)) {
+    fouten.push('Ongeldige NEVO-code.')
+  }
   if (product.porties !== undefined) {
     if (!Array.isArray(product.porties)) fouten.push('Porties moeten een lijst zijn.')
     else product.porties.forEach((p) => fouten.push(...controleerPortie(p, false)))
@@ -124,7 +140,7 @@ export function controleerRecept(recept) {
   if (!Array.isArray(recept.ingredienten)) fouten.push('Ingrediënten moeten een lijst zijn.')
   else {
     recept.ingredienten.forEach((ing) => {
-      if (!isObject(ing) || !isObject(ing.productRef)) fouten.push('Ingrediënt zonder product.')
+      if (!isObject(ing) || controleerProductRef(ing.productRef).length > 0) fouten.push('Ingrediënt zonder product.')
       else if (!isGetal(ing.hoeveelheid) || ing.hoeveelheid <= 0) fouten.push('Ingrediënt met ongeldige hoeveelheid.')
     })
   }
@@ -182,6 +198,14 @@ export function controleerInstelling(instelling) {
   return fouten
 }
 
+// Een favoriet: { sleutel: 'nevo:123' } of { sleutel: 'eigen:5' }
+export function controleerFavoriet(favoriet) {
+  if (!isObject(favoriet) || typeof favoriet.sleutel !== 'string' || !/^(nevo|eigen|off):[1-9]\d*$/.test(favoriet.sleutel)) {
+    return ['Ongeldige favoriet.']
+  }
+  return []
+}
+
 // Welke controle bij welke tabel hoort (gebruikt bij het terugzetten van een back-up).
 export const CONTROLE_PER_TABEL = {
   producten: controleerProduct,
@@ -191,7 +215,8 @@ export const CONTROLE_PER_TABEL = {
   gewicht: controleerGewicht,
   bewegingssoorten: controleerBewegingssoort,
   beweging: controleerBeweging,
-  instellingen: controleerInstelling
+  instellingen: controleerInstelling,
+  favorieten: controleerFavoriet
 }
 
 // Controleert de buitenkant van een back-upbestand (nog niet de inhoud per regel).
@@ -218,7 +243,7 @@ export function controleerBackupVorm(backup, huidigeVersie, tabelnamen) {
 }
 
 // Velden die per tabel maar één keer mogen voorkomen (naast het volgnummer).
-const UNIEKE_VELDEN = { gewicht: 'datum', instellingen: 'sleutel' }
+const UNIEKE_VELDEN = { gewicht: 'datum', instellingen: 'sleutel', favorieten: 'sleutel' }
 
 // Controleert alle regels in de gegevens van een back-up.
 // Geeft hoogstens "max" fouten terug, met vermelding van onderdeel en regelnummer.

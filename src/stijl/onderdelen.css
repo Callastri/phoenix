@@ -158,3 +158,21 @@
   stroke-linejoin: round;
 }
 .navigatie a[aria-current="page"] { color: var(--accent); font-weight: 600; }
+
+/* Productdialoog */
+.bron { margin: -6px 0 8px; color: var(--tekst-zacht); }
+.acties { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.ster[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.breed-keuze select { width: auto; flex: 1; }
+.breed-keuze input { width: 96px; flex: none; }
+.waarden-tabel { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+.waarden-tabel caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+.waarden-tabel th { text-align: left; font-weight: normal; padding: 4px 0; }
+.waarden-tabel td { text-align: right; padding: 4px 0; white-space: nowrap; }
+.waarden-tabel tr + tr { border-top: 1px solid var(--rand); }
+
+/* Porties */
+.portie-lijst { list-style: none; padding: 0; }
+.portie-lijst li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; }
+.portie-rij { display: grid; grid-template-columns: 1fr 90px 44px; gap: 6px; margin-bottom: 6px; }
+.dialoog h3 { font-size: 1rem; margin: 16px 0 4px; }

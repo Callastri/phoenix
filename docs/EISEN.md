@@ -29,17 +29,18 @@ van de eigenaar. Pas daarna start de volgende fase.
 - [x] Tests: dagtotalen, hoeveelheid → gram, invoercontrole, back-up
 
 ## Fase 2 — NEVO, zoeken, recent, favorieten
-- [ ] NEVO omzetten naar compact JSON (script in `scripts/`), meegebundeld
-- [ ] Bronvermelding: "Gebaseerd op gegevens van NEVO-online versie 2025/9.0,
+- [x] Script om NEVO om te zetten naar compact JSON (`scripts/nevo-naar-json.js`)
+- [ ] Het echte NEVO-bestand omzetten en meeleveren *(wacht op bestand + besluit eigenaar)*
+- [x] Bronvermelding: "Gebaseerd op gegevens van NEVO-online versie 2025/9.0,
       RIVM, Bilthoven en andere gegevens" + link naar nevo-online.rivm.nl
-- [ ] Zoeken op naam (zonder accenten/hoofdletters te onderscheiden)
-- [ ] Hoeveelheid in gram, ml of portie (porties per product)
-- [ ] Recent gebruikt en favorieten
-- [ ] Maaltijd van gisteren kopiëren naar vandaag
-- [ ] Eigen product toevoegen; NEVO-product "aanpassen" = eigen product
+- [x] Zoeken op naam (zonder accenten/hoofdletters te onderscheiden)
+- [x] Hoeveelheid in gram, ml of portie (porties per product)
+- [x] Recent gebruikt en favorieten
+- [x] Maaltijd van gisteren kopiëren naar vandaag
+- [x] Eigen product toevoegen; NEVO-product "aanpassen" = eigen product
       maken op basis daarvan (NEVO zelf blijft ongewijzigd, zie voorwaarden)
-- [ ] Eigen porties toevoegen bij NEVO-producten
-- [ ] Tests: portieberekening, zoeken/normaliseren, kopiëren
+- [x] Eigen porties toevoegen bij NEVO-producten
+- [x] Tests: portieberekening, zoeken/normaliseren, kopiëren
 
 ## Fase 3 — Barcode + Open Food Facts
 - [ ] Barcode scannen met camera (werkt op iPhone én Android)

@@ -8,12 +8,25 @@
 import { SLEUTELS } from '../gegevens/voedingsstoffen.js'
 
 // Rekent een hoeveelheid om naar gram of ml (de "basis" waarmee we rekenen).
-// In fase 1 kan dat alleen 'g' of 'ml'; porties komen in fase 2.
-// In:  hoeveelheid (getal) en eenheid ('g' of 'ml')
+// In:  hoeveelheid (getal), eenheid ('g', 'ml' of 'portie'),
+//      en bij 'portie' het gewicht van één portie in gram/ml
 // Uit: hoeveelheid in gram of ml
-export function basisHoeveelheid(hoeveelheid, eenheid) {
+// Voorbeeld: 2 porties van 35 g → 70
+export function basisHoeveelheid(hoeveelheid, eenheid, portieGram = null) {
   if (eenheid === 'g' || eenheid === 'ml') return hoeveelheid
+  if (eenheid === 'portie') {
+    if (!(portieGram > 0)) throw new Error('Portie zonder gewicht')
+    return hoeveelheid * portieGram
+  }
   throw new Error(`Onbekende eenheid: ${eenheid}`)
+}
+
+// Rekent natrium (mg) om naar zout (g), volgens de EU-regel: zout = natrium × 2,5.
+// NEVO geeft alleen natrium; de app toont zout en vermeldt dat het berekend is.
+// In:  natrium in mg (of null)   Uit: zout in g (of null)
+export function zoutUitNatrium(natriumMg) {
+  if (natriumMg === null || natriumMg === undefined) return null
+  return (natriumMg * 2.5) / 1000
 }
 
 // Berekent de voedingswaarden voor een bepaalde hoeveelheid.
