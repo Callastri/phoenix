@@ -83,7 +83,8 @@ van de eigenaar. Pas daarna start de volgende fase.
    omrekening (EU-verordening 1169/2011) is zout = natrium × 2,5.
    Voorstel: zo omrekenen en dat vermelden. Dit is een vaste formule,
    geen schatting. Akkoord?
-   **Status: open** — eigenaar vroeg of NEVO natrium vermeldt (ja).
+   **Besluit: zout tonen.** Heeft NEVO zelf een zoutkolom, dan die gebruiken;
+   anders zout = natrium × 2,5, met vermelding in het scherm "Over".
 2. **Dagboek bewaart een momentopname.** Voorstel: bij toevoegen bewaart
    het dagboek de voedingswaarden van dat moment. Pas je later een product
    aan, dan veranderen oude dagen niet. Akkoord?
