@@ -83,15 +83,21 @@ van de eigenaar. Pas daarna start de volgende fase.
    omrekening (EU-verordening 1169/2011) is zout = natrium × 2,5.
    Voorstel: zo omrekenen en dat vermelden. Dit is een vaste formule,
    geen schatting. Akkoord?
+   **Status: open** — eigenaar vroeg of NEVO natrium vermeldt (ja).
 2. **Dagboek bewaart een momentopname.** Voorstel: bij toevoegen bewaart
    het dagboek de voedingswaarden van dat moment. Pas je later een product
    aan, dan veranderen oude dagen niet. Akkoord?
+   **Besluit: akkoord.**
 3. **Mifflin-St Jeor** heeft een formule voor "man" en "vrouw". Voorstel:
    de keuze heet "formule: man / vrouw" en is alleen nodig voor de
    doelhulp. Akkoord?
+   **Besluit: akkoord.**
 4. **"Onrealistisch laag" doel.** Voorstel: waarschuwing als het doel onder
    het berekende rustmetabolisme (BMR) ligt, of onder 1200 kcal. Geen
    blokkade, alleen een duidelijke melding. Akkoord?
+   **Besluit: akkoord.**
 5. **NEVO-bestand.** Zie PRIVACY.md/ARCHITECTUUR.md: de voorwaarden moeten
    nog gecontroleerd worden en mogelijk moet je het bestand zelf
    downloaden bij RIVM. Dit is pas nodig in fase 2.
+   **Status: open** — bronnen gekregen (nevo-online.rivm.nl, rivm.nl),
+   maar die sites zijn nog niet bereikbaar vanuit de ontwikkelomgeving.
