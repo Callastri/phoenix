@@ -46,12 +46,21 @@ in de browser van de gebruiker.
 - Elke wijziging van het gegevensmodel heeft een migratie die bestaande
   gegevens behoudt, met een test (zie ARCHITECTUUR.md).
 
-## Bronnen en voorwaarden (nog te controleren)
-- **NEVO (RIVM):** de app vermeldt "NEVO-online versie [jaar/versie],
-  RIVM, Bilthoven". Of het omgezette bestand openbaar in de app (en in deze
-  publieke repository) mag staan, moet nog gecontroleerd worden in de
-  gebruiksvoorwaarden van RIVM. **Status: niet geverifieerd** — de website
-  van RIVM was vanuit de ontwikkelomgeving niet bereikbaar. Dit wordt
-  afgerond vóór fase 2.
+## Bronnen en voorwaarden
+- **NEVO (RIVM)** — gecontroleerd op 29-10-2026 in "Voorwaarden voor gebruik
+  NEVO-online versie 2025/9.0". Wat dat voor de app betekent:
+  - Gebruik is gratis; er mag ook geen geld voor gevraagd worden. ✔ past.
+  - Alleen gebruik **in ongewijzigde vorm**, met bron en versienummer.
+    → we nemen kolommen ongewijzigd over; NEVO-producten zijn in de app niet
+    te bewerken; zout is een aparte, gemarkeerde berekening.
+  - **Aanvullingen** mogen, als direct duidelijk is dat het aanvullingen zijn.
+    → eigen producten en eigen porties worden zichtbaar als "eigen" getoond.
+  - Bronvermelding voor berekende uitkomsten: "Gebaseerd op gegevens van
+    NEVO-online versie 2025/9.0, RIVM, Bilthoven en andere gegevens".
+  - Bij een nieuwe NEVO-versie: oude versie vervangen (README legt uit hoe).
+  - RIVM is niet aansprakelijk voor fouten; dit staat in het scherm "Over".
+  - De voorwaarden verbieden niet uitdrukkelijk het meeleveren van de
+    gegevens in een app. [Waarschijnlijk toegestaan met bronvermelding, niet
+    juridisch bevestigd.] Bij twijfel: vraag het RIVM via nevo@rivm.nl.
 - **Open Food Facts:** gegevens vallen onder de Open Database License
   (ODbL). De app vermeldt de bron en de licentie.

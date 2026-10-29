@@ -71,7 +71,8 @@ Een ontbrekende waarde is `null`, nooit 0.
 ### Tabellen
 | Tabel | Velden | Opmerking |
 |---|---|---|
-| `producten` | `id`, `bron` ('eigen' \| 'off' \| 'nevo-aangepast'), `naam`, `merk?`, `barcode?`, `nevoCode?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `favoriet`, `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een kopie in deze tabel. |
+| `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?`, `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `favoriet`, `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
+| `porties` | `id`, `nevoCode`, `naam`, `gram` | Eigen porties bij NEVO-producten (bv. "1 snee" = 35 g). |
 | `recepten` | `id`, `naam`, `aantalPorties`, `ingredienten` [{`productRef`, `hoeveelheid`, `eenheid`}], `favoriet`, `bijgewerkt` | Waarden per portie worden berekend, niet opgeslagen. |
 | `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`}, `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), `portieNaam?`, `gram`, `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
 | `gewicht` | `id`, `datum`, `kg` | Eén meting per datum; nieuwe invoer op dezelfde datum vervangt. |
@@ -105,14 +106,26 @@ fout wordt niets gewijzigd en zie je welke regel fout is. Daarna kies je
 "vervangen" (alles wissen en terugzetten). Samenvoegen doen we niet in de
 MVP — dat is foutgevoelig.
 
-## NEVO-gegevens
+## NEVO-gegevens (versie 2025/9.0)
 - Script `scripts/nevo-naar-json.js` leest het officiële NEVO-bestand en
-  schrijft `public/nevo.json` met alleen: code, naam, eenheid, de zeven
-  waarden en eventuele standaardporties.
+  schrijft `public/nevo.json` met alleen: NEVO-code, naam, NEVO-versie,
+  eenheid, en deze kolommen **ongewijzigd**: kcal, Eiwit, Koolhydraten,
+  Vet, Vezel, Mono-disachariden (= "waarvan suikers"), Natrium (mg).
 - Lege NEVO-cellen blijven `null`.
-- Verwachte grootte: enkele honderden kB, gecomprimeerd minder [schatting].
-- Het originele bestand komt NIET in de repository als de voorwaarden dat
-  niet toelaten (zie PRIVACY.md).
+- **Zout** wordt niet in `nevo.json` gezet, maar in de app berekend
+  (`berekeningen/voeding.js`: natrium mg × 2,5 / 1000 = zout g) en in de
+  interface gemarkeerd als "berekend uit natrium". Zo blijft de NEVO-data
+  zelf ongewijzigd.
+- NEVO-producten zijn **niet aanpasbaar**. "Aanpassen" maakt een eigen
+  product (`bron: 'eigen'`, `gebaseerdOpNevo: <code>`) dat in de app
+  duidelijk als eigen product wordt getoond, niet als NEVO.
+- Porties bij NEVO-producten zijn eigen aanvullingen van de gebruiker en
+  worden apart bewaard (tabel `porties`), niet in `nevo.json`.
+- Het originele RIVM-bestand komt NIET in de repository; alleen het
+  omgezette `nevo.json`.
+- Verwachte grootte: enkele honderden kB [schatting].
+- Nieuwe NEVO-versie: script opnieuw draaien met het nieuwe bestand en het
+  versienummer in de bronvermelding aanpassen (staat in de README).
 
 ## Publiceren
 - GitHub Action `.github/workflows/publiceren.yml`: bij elke wijziging op

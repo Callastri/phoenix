@@ -30,12 +30,15 @@ van de eigenaar. Pas daarna start de volgende fase.
 
 ## Fase 2 — NEVO, zoeken, recent, favorieten
 - [ ] NEVO omzetten naar compact JSON (script in `scripts/`), meegebundeld
-- [ ] Bronvermelding NEVO in de app (scherm "Over")
+- [ ] Bronvermelding: "Gebaseerd op gegevens van NEVO-online versie 2025/9.0,
+      RIVM, Bilthoven en andere gegevens" + link naar nevo-online.rivm.nl
 - [ ] Zoeken op naam (zonder accenten/hoofdletters te onderscheiden)
 - [ ] Hoeveelheid in gram, ml of portie (porties per product)
 - [ ] Recent gebruikt en favorieten
 - [ ] Maaltijd van gisteren kopiëren naar vandaag
-- [ ] Eigen product toevoegen; NEVO-product aanpassen (lokale kopie)
+- [ ] Eigen product toevoegen; NEVO-product "aanpassen" = eigen product
+      maken op basis daarvan (NEVO zelf blijft ongewijzigd, zie voorwaarden)
+- [ ] Eigen porties toevoegen bij NEVO-producten
 - [ ] Tests: portieberekening, zoeken/normaliseren, kopiëren
 
 ## Fase 3 — Barcode + Open Food Facts
@@ -83,8 +86,8 @@ van de eigenaar. Pas daarna start de volgende fase.
    omrekening (EU-verordening 1169/2011) is zout = natrium × 2,5.
    Voorstel: zo omrekenen en dat vermelden. Dit is een vaste formule,
    geen schatting. Akkoord?
-   **Besluit: zout tonen.** Heeft NEVO zelf een zoutkolom, dan die gebruiken;
-   anders zout = natrium × 2,5, met vermelding in het scherm "Over".
+   **Besluit: zout tonen.** NEVO heeft geen zoutkolom (gecontroleerd); de app
+   berekent zout = natrium × 2,5 en markeert dat als berekend.
 2. **Dagboek bewaart een momentopname.** Voorstel: bij toevoegen bewaart
    het dagboek de voedingswaarden van dat moment. Pas je later een product
    aan, dan veranderen oude dagen niet. Akkoord?
@@ -100,5 +103,6 @@ van de eigenaar. Pas daarna start de volgende fase.
 5. **NEVO-bestand.** Zie PRIVACY.md/ARCHITECTUUR.md: de voorwaarden moeten
    nog gecontroleerd worden en mogelijk moet je het bestand zelf
    downloaden bij RIVM. Dit is pas nodig in fase 2.
-   **Status: open** — bronnen gekregen (nevo-online.rivm.nl, rivm.nl),
-   maar die sites zijn nog niet bereikbaar vanuit de ontwikkelomgeving.
+   **Status: voorwaarden gecontroleerd** (zie PRIVACY.md). Nog nodig vóór
+   fase 2: het databestand downloaden (formulier op rivm.nl, akkoord met
+   de voorwaarden door de eigenaar).
