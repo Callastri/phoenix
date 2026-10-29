@@ -1,0 +1,160 @@
+/* Herbruikbare onderdelen: knoppen, kaarten, dialogen, meldingen, navigatie. */
+
+/* Knoppen: minstens 44px hoog, zodat je ze makkelijk raakt. */
+.knop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: var(--vlak);
+  color: var(--tekst);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.knop-hoofd { background: var(--accent); border-color: var(--accent); color: var(--accent-tekst); }
+.knop-gevaar { background: var(--gevaar); border-color: var(--gevaar); color: var(--gevaar-tekst); }
+.knop-breed { display: flex; width: 100%; margin-top: 8px; }
+.knop-klein { min-height: 36px; padding: 4px 12px; font-size: 0.9rem; }
+.knop:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.knop-rond {
+  width: 44px; height: 44px;
+  border: 1px solid var(--rand);
+  border-radius: 50%;
+  background: var(--vlak);
+  color: var(--tekst);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.knoppen {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.knoppen .knop-gevaar:first-child { margin-right: auto; }
+
+.kaart {
+  background: var(--vlak);
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  box-shadow: var(--schaduw);
+}
+.kaart h2 { font-size: 1.1rem; margin: 4px 0 8px; }
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--accent-zacht);
+}
+.banner p { margin: 0; flex: 1; font-size: 0.95rem; }
+.banner-let-op { background: var(--let-op-vlak); color: var(--let-op-tekst); }
+
+.let-op {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--let-op-vlak);
+  color: var(--let-op-tekst);
+}
+
+/* Dialoog: schuift onderaan in beeld (bereikbaar met je duim). */
+.dialoog {
+  width: 100%;
+  max-width: 640px;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px);
+  overflow-y: auto;
+  border: none;
+  border-radius: 18px 18px 0 0;
+  background: var(--vlak);
+  color: var(--tekst);
+}
+.dialoog::backdrop { background: rgb(0 0 0 / 0.45); }
+.dialoog-titel { margin: 0 0 12px; font-size: 1.25rem; }
+@media (min-width: 700px) {
+  .dialoog { margin: auto; border-radius: 18px; }
+}
+
+.veld { margin-bottom: 12px; }
+.veld label, .veld-rij label { display: block; margin-bottom: 4px; font-weight: 600; }
+.veld-rij {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.veld-rij label { margin: 0; font-weight: normal; }
+.naast-elkaar { display: flex; gap: 8px; }
+.naast-elkaar select { width: 110px; flex: none; }
+.waarden { border: 1px solid var(--rand); border-radius: 12px; padding: 8px 12px; margin: 0; }
+.waarden legend { font-weight: 600; padding: 0 4px; }
+.voorbeeld { margin: 0 0 12px; color: var(--tekst-zacht); min-height: 1.4em; }
+
+.fouten { color: var(--gevaar); }
+.fouten ul { margin: 12px 0 0; padding-left: 20px; }
+
+.stappen { padding-left: 22px; }
+.stappen li { margin-bottom: 6px; }
+
+/* Korte melding bovenaan. */
+.melding {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--tekst);
+  color: var(--achtergrond);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.25);
+}
+
+/* Navigatie onderaan. */
+.navigatie {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 4px calc(env(safe-area-inset-bottom) + 6px);
+  background: var(--vlak);
+  border-top: 1px solid var(--rand);
+}
+.navigatie a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 48px;
+  padding-top: 4px;
+  color: var(--tekst-zacht);
+  font-size: 0.72rem;
+  text-decoration: none;
+}
+.navigatie svg {
+  width: 26px; height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.navigatie a[aria-current="page"] { color: var(--accent); font-weight: 600; }

@@ -4,29 +4,29 @@ Elke fase eindigt met: samenvatting, testinstructies voor iPhone, akkoord
 van de eigenaar. Pas daarna start de volgende fase.
 
 ## Fase 0 — Documenten
-- [ ] CLAUDE.md, VISIE.md, EISEN.md, ARCHITECTUUR.md, PRIVACY.md
-- [ ] Akkoord van de eigenaar, inclusief de open vragen onderaan
+- [x] CLAUDE.md, VISIE.md, EISEN.md, ARCHITECTUUR.md, PRIVACY.md
+- [x] Akkoord van de eigenaar, inclusief de open vragen onderaan
 
 ## Fase 1 — Basis
-- [ ] Projectopzet: Vite, Dexie, Vitest, mappenstructuur (zie ARCHITECTUUR.md)
-- [ ] Automatisch publiceren naar GitHub Pages via GitHub Actions
-- [ ] Opslag met schemaversie en migratiemechanisme (+ test)
-- [ ] Navigatie onderaan: Dagboek · Gewicht · Beweging · Overzicht · Meer
+- [x] Projectopzet: Vite, Dexie, Vitest, mappenstructuur (zie ARCHITECTUUR.md)
+- [x] Automatisch publiceren naar GitHub Pages via GitHub Actions *(werkt zodra Pages aanstaat)*
+- [x] Opslag met schemaversie en migratiemechanisme (+ test)
+- [x] Navigatie onderaan: Dagboek · Gewicht · Beweging · Overzicht · Meer
       (in fase 1 alleen Dagboek en Meer actief)
-- [ ] Dagboek: dag kiezen (vorige/volgende/vandaag), vier maaltijden
-- [ ] Handmatig eten invoeren: naam + waarden per 100 g/ml + hoeveelheid
-- [ ] Item aanpassen en verwijderen
-- [ ] Dagtotalen (kcal, eiwit, koolhydraten, vet, vezels, suiker, zout)
-- [ ] Invoercontrole (geen negatieve waarden, geldige datum, enz.)
-- [ ] Back-up exporteren als JSON via deelmenu (iPhone: Bewaar in Bestanden)
-- [ ] Back-up importeren met controle, met test voor export → import
-- [ ] CSV-export
-- [ ] Datum laatste back-up tonen + herinnering na 7 dagen
-- [ ] Alle gegevens wissen (met bevestiging: typ "WISSEN")
-- [ ] iPhone-uitleg "Zet op beginscherm" bij eerste gebruik in Safari
-- [ ] `navigator.storage.persist()` aanvragen en de uitkomst tonen in Meer
-- [ ] Licht/donker thema
-- [ ] Tests: dagtotalen, hoeveelheid → gram, invoercontrole, back-up
+- [x] Dagboek: dag kiezen (vorige/volgende/vandaag), vier maaltijden
+- [x] Handmatig eten invoeren: naam + waarden per 100 g/ml + hoeveelheid
+- [x] Item aanpassen en verwijderen
+- [x] Dagtotalen (kcal, eiwit, koolhydraten, vet, vezels, suiker, zout)
+- [x] Invoercontrole (geen negatieve waarden, geldige datum, enz.)
+- [x] Back-up exporteren als JSON via deelmenu (iPhone: Bewaar in Bestanden) *(nog te testen op iPhone)*
+- [x] Back-up importeren met controle, met test voor export → import
+- [x] CSV-export
+- [x] Datum laatste back-up tonen + herinnering na 7 dagen
+- [x] Alle gegevens wissen (met bevestiging: typ "WISSEN")
+- [x] iPhone-uitleg "Zet op beginscherm" bij eerste gebruik in Safari *(nog te testen op iPhone)*
+- [x] `navigator.storage.persist()` aanvragen en de uitkomst tonen in Meer *(nog te testen op iPhone)*
+- [x] Licht/donker thema
+- [x] Tests: dagtotalen, hoeveelheid → gram, invoercontrole, back-up
 
 ## Fase 2 — NEVO, zoeken, recent, favorieten
 - [ ] NEVO omzetten naar compact JSON (script in `scripts/`), meegebundeld

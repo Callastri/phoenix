@@ -74,14 +74,15 @@ Een ontbrekende waarde is `null`, nooit 0.
 | `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?`, `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `favoriet`, `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
 | `porties` | `id`, `nevoCode`, `naam`, `gram` | Eigen porties bij NEVO-producten (bv. "1 snee" = 35 g). |
 | `recepten` | `id`, `naam`, `aantalPorties`, `ingredienten` [{`productRef`, `hoeveelheid`, `eenheid`}], `favoriet`, `bijgewerkt` | Waarden per portie worden berekend, niet opgeslagen. |
-| `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`}, `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), `portieNaam?`, `gram`, `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
+| `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`} of `null` (handmatige invoer), `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), `portieNaam?`, `gram`, `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
 | `gewicht` | `id`, `datum`, `kg` | Eén meting per datum; nieuwe invoer op dezelfde datum vervangt. |
 | `bewegingssoorten` | `id`, `naam`, `met`, `metAfstand` (ja/nee), `eigen` | Startlijst uit `gegevens/bewegingssoorten.js`; zelf uitbreidbaar. |
 | `beweging` | `id`, `datum`, `soortId`, `soortNaam`, `met` (momentopname), `minuten`, `afstandKm?`, `notitie?` | kcal wordt berekend met het gewicht dat het dichtst bij die datum ligt. |
 | `instellingen` | sleutel/waarde: `profiel` (lengte, geboortejaar, formule man/vrouw, activiteitsniveau), `doelen`, `bewegingOptellen` (standaard `false`), `laatsteBackup`, `installUitlegGezien` | |
 
 Indexen: `dagboek` op `datum` en `[datum+maaltijd]`; `gewicht` en `beweging`
-op `datum`; `producten` op `barcode`, `naam`, `favoriet`.
+op `datum`; `producten` op `barcode`, `naam`. (Favorieten worden gefilterd
+zonder index: IndexedDB kan niet zoeken op ja/nee-waarden.)
 
 ### Schemaversie en migraties
 - `src/opslag/db.js` definieert elke versie met Dexie `.version(n).upgrade()`.

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Voedingsdagboek</title>
+    <meta name="description" content="Gratis voedingsdagboek zonder advertenties, account of tracking.">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f6f7f5" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#151814" media="(prefers-color-scheme: dark)">
+    <!-- Voor iPhone: naam en icoon op het beginscherm -->
+    <meta name="apple-mobile-web-app-title" content="Dagboek">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/icoon-180.png">
+    <link rel="icon" type="image/png" href="/icoon-192.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+  </head>
+  <body>
+    <main id="inhoud" class="inhoud"></main>
+
+    <!-- Navigatie onderaan: makkelijk met je duim te bereiken -->
+    <nav class="navigatie" aria-label="Hoofdmenu">
+      <a href="#/dagboek" data-scherm="dagboek">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6V3zM9 8h7M9 12h7M9 16h4"/></svg>
+        <span>Dagboek</span>
+      </a>
+      <a href="#/gewicht" data-scherm="gewicht">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M8 10a5 5 0 0 1 8 0l-3 2"/></svg>
+        <span>Gewicht</span>
+      </a>
+      <a href="#/beweging" data-scherm="beweging">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-6 3 2.5V22M9.5 15l1.5-6 4 3 3 1M11 9l-4 1-1 3"/></svg>
+        <span>Beweging</span>
+      </a>
+      <a href="#/overzicht" data-scherm="overzicht">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Overzicht</span>
+      </a>
+      <a href="#/meer" data-scherm="meer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        <span>Meer</span>
+      </a>
+    </nav>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
