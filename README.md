@@ -5,9 +5,9 @@ geen tracking. Je gegevens blijven op je eigen toestel.
 
 **De app:** https://callastri.github.io/phoenix/
 
-**Status:** fase 1 — dagboek met handmatige invoer, back-up, terugzetten en wissen.
-Zoeken in de NEVO-tabel, barcodes, doelen, gewicht en beweging komen later
-(zie [docs/EISEN.md](docs/EISEN.md)).
+**Status:** fase 2 — dagboek, zoeken, recent, favorieten, eigen producten en
+porties, maaltijd kopiëren, back-up. Barcodes, doelen, gewicht en beweging komen
+later (zie [docs/EISEN.md](docs/EISEN.md)).
 
 ---
 
@@ -55,6 +55,17 @@ test faalde; dan blijft de oude versie online staan.
 
 ---
 
+## NEVO-tabel bijwerken (nieuwe versie van het RIVM)
+
+De voorwaarden van het RIVM vragen om een oude versie te vervangen zodra er een
+nieuwe is. Zo doe je dat (of vraag het Claude):
+
+1. Download het nieuwe databestand op
+   https://www.rivm.nl/nederlands-voedingsstoffenbestand/gebruik-nevo-online/download-bestand
+2. Zet het om in de projectmap:
+   `node scripts/nevo-naar-json.js pad/naar/bestand.csv 2025/9.0` (met het nieuwe versienummer)
+3. Alleen `public/nevo.json` gaat naar GitHub, nooit het originele RIVM-bestand.
+
 ## Zelf dingen aanpassen
 
 Je kunt kleine dingen direct op GitHub aanpassen: open het bestand, klik op het
@@ -71,6 +82,7 @@ binnen een paar minuten online.
 | Grenzen bij het controleren van invoer | `src/gegevens/drempels.js` |
 | Teksten van het dagboek | `src/schermen/dagboek.js` |
 | Teksten van het scherm Meer | `src/schermen/meer.js` |
+| Teksten van het toevoegscherm (zoeken, recent, favorieten) | `src/schermen/toevoegen.js` |
 
 Pas `sleutel`-waarden en bestanden in `src/opslag/` niet zelf aan: dat zijn de
 namen waaronder gegevens bewaard worden. Een wijziging daar heeft een migratie nodig.

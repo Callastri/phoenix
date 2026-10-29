@@ -10,6 +10,7 @@ import { leesInstelling, bewaarInstelling } from '../opslag/instellingen.js'
 import { deelBestand } from '../diensten/delen.js'
 import { statusPermanenteOpslag, vraagPermanenteOpslag, isGeinstalleerd } from '../diensten/toestel.js'
 import { toonInstallUitleg } from './installeren.js'
+import { laadNevo, nevoBronvermelding } from '../diensten/nevo.js'
 
 const APP_VERSIE = __APP_VERSIE__
 
@@ -159,12 +160,21 @@ function sectieWissen(herteken) {
 
 // --- Over ---------------------------------------------------------------------
 
-function sectieOver() {
+function sectieOver(nevo) {
   return el('section', { class: 'kaart' },
     el('h2', {}, 'Over deze app'),
     el('p', {}, `Voedingsdagboek, versie ${APP_VERSIE}. Gratis, zonder advertenties, zonder account.`),
     el('p', {}, 'Al je gegevens blijven op dit toestel. Er gaat niets naar een server. ',
       'Enige uitzondering (vanaf een volgende versie): bij het scannen van een barcode wordt alleen het barcodenummer opgezocht bij Open Food Facts.'),
+    el('h3', {}, 'Bronnen'),
+    nevo
+      ? el('p', {},
+          nevoBronvermelding(nevo.versie), ' ',
+          el('a', { href: 'https://nevo-online.rivm.nl/', rel: 'noopener' }, 'NEVO-online'), '. ',
+          'Zout is berekend uit natrium (zout = natrium × 2,5). ',
+          'Eigen producten en eigen porties zijn aanvullingen van jezelf, geen NEVO-gegevens. ',
+          'Het RIVM is niet aansprakelijk voor fouten in of verkeerd gebruik van de gegevens.')
+      : el('p', {}, 'De NEVO-tabel is nog niet toegevoegd.'),
     el('p', {}, 'Broncode: ', el('a', { href: 'https://github.com/Callastri/phoenix', rel: 'noopener' }, 'github.com/Callastri/phoenix'))
   )
 }
@@ -172,8 +182,8 @@ function sectieOver() {
 // Tekent het hele scherm.
 export async function toonMeer(container) {
   const herteken = () => toonMeer(container)
-  const [backupBestand, csvBestand, laatsteBackup, status] = await Promise.all([
-    maakBackupBestand(), maakCsvBestand(), leesInstelling('laatsteBackup'), statusPermanenteOpslag()
+  const [backupBestand, csvBestand, laatsteBackup, status, nevo] = await Promise.all([
+    maakBackupBestand(), maakCsvBestand(), leesInstelling('laatsteBackup'), statusPermanenteOpslag(), laadNevo()
   ])
   container.replaceChildren(
     el('h1', { class: 'schermtitel' }, 'Meer'),
@@ -181,6 +191,6 @@ export async function toonMeer(container) {
     sectieTerugzetten(herteken),
     sectieOpslag(status, herteken),
     sectieWissen(herteken),
-    sectieOver()
+    sectieOver(nevo)
   )
 }

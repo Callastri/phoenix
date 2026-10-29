@@ -1,68 +1,52 @@
-// Dialoog om een dagboekregel toe te voegen of aan te passen (handmatige invoer).
+// Dialoog om een dagboekregel handmatig toe te voegen of aan te passen
+// (zonder product uit de NEVO-tabel of eigen producten).
 
 import { el } from './html.js'
 import { openDialoog, bevestig } from './dialoog.js'
-import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
+import { maakWaardenVelden, naarVeld, toonFouten } from './waardenVelden.js'
 import { MAALTIJDEN } from '../gegevens/maaltijden.js'
 import { leesGetal, toonGetal } from '../berekeningen/getallen.js'
 import { waardenVoorHoeveelheid } from '../berekeningen/voeding.js'
 import { voegRegelToe, werkRegelBij, verwijderRegel } from '../opslag/dagboek.js'
 import { OngeldigeInvoer } from '../opslag/fouten.js'
 
-// Zet een opgeslagen getal terug in een invoerveld (12.5 → "12,5"; onbekend → leeg).
-function naarVeld(getal) {
-  return getal === null || getal === undefined ? '' : String(getal).replace('.', ',')
-}
-
 // Opent de dialoog.
-// In:  { datum, maaltijd, regel }  — "regel" alleen bij aanpassen
+// In:  { datum, maaltijd, regel, sjabloon }
+//      - regel: alleen bij aanpassen
+//      - sjabloon: een eerdere regel om de velden alvast mee te vullen (nieuwe regel)
 // Uit: Promise met 'opgeslagen', 'verwijderd' of null (geannuleerd)
-export function openRegelDialoog({ datum, maaltijd, regel = null }) {
+export function openRegelDialoog({ datum, maaltijd, regel = null, sjabloon = null }) {
   return new Promise((klaar) => {
     let uitkomst = null
     const bestaand = regel !== null
+    const begin = regel ?? sjabloon
 
     const naamVeld = el('input', {
       id: 'veld-naam', type: 'text', required: true, autocomplete: 'off',
-      maxlength: '120', value: bestaand ? regel.naam : ''
+      maxlength: '120', value: begin ? begin.naam : ''
     })
     const maaltijdVeld = el('select', { id: 'veld-maaltijd' },
       MAALTIJDEN.map((m) => el('option', { value: m.sleutel, selected: m.sleutel === (bestaand ? regel.maaltijd : maaltijd) }, m.naam))
     )
     const hoeveelheidVeld = el('input', {
       id: 'veld-hoeveelheid', type: 'text', inputmode: 'decimal', autocomplete: 'off',
-      value: bestaand ? naarVeld(regel.hoeveelheid) : '100'
+      value: begin ? naarVeld(begin.hoeveelheid) : '100'
     })
     const eenheidVeld = el('select', { id: 'veld-eenheid', 'aria-label': 'Eenheid' },
-      el('option', { value: 'g', selected: !bestaand || regel.eenheid === 'g' }, 'gram'),
-      el('option', { value: 'ml', selected: bestaand && regel.eenheid === 'ml' }, 'ml')
+      el('option', { value: 'g', selected: !begin || begin.eenheid === 'g' }, 'gram'),
+      el('option', { value: 'ml', selected: begin?.eenheid === 'ml' }, 'ml')
     )
-
-    const waardeVelden = {}
-    const waardeRijen = VOEDINGSSTOFFEN.map((stof) => {
-      const veld = el('input', {
-        id: `veld-${stof.sleutel}`, type: 'text', inputmode: 'decimal', autocomplete: 'off',
-        placeholder: 'onbekend', value: bestaand ? naarVeld(regel.waarden[stof.sleutel]) : ''
-      })
-      waardeVelden[stof.sleutel] = veld
-      return el('div', { class: 'veld-rij' },
-        el('label', { for: veld.id }, `${stof.naam} (${stof.eenheid})`),
-        veld
-      )
-    })
-
-    const legende = el('legend', {})
+    const waarden = maakWaardenVelden(begin ? begin.waarden : null)
     const voorbeeld = el('p', { class: 'voorbeeld', 'aria-live': 'polite' })
     const foutVak = el('div', { class: 'fouten', role: 'alert' })
 
     // Werkt "per 100 g/ml" en de berekende kcal voor deze hoeveelheid bij.
     function werkVoorbeeldBij() {
-      legende.textContent = `Voedingswaarden per 100 ${eenheidVeld.value}`
+      waarden.zetEenheid(eenheidVeld.value)
       const hoeveelheid = leesGetal(hoeveelheidVeld.value)
-      const kcal = leesGetal(waardeVelden.kcal.value)
-      if (hoeveelheid > 0 && kcal >= 0 && kcal !== null) {
-        const waarden = waardenVoorHoeveelheid({ kcal }, hoeveelheid)
-        voorbeeld.textContent = `Deze hoeveelheid: ${toonGetal(waarden.kcal)} kcal`
+      const kcal = leesGetal(waarden.velden.kcal.value)
+      if (hoeveelheid > 0 && kcal !== null && kcal >= 0) {
+        voorbeeld.textContent = `Deze hoeveelheid: ${toonGetal(waardenVoorHoeveelheid({ kcal }, hoeveelheid).kcal)} kcal`
       } else {
         voorbeeld.textContent = ''
       }
@@ -71,15 +55,14 @@ export function openRegelDialoog({ datum, maaltijd, regel = null }) {
     // Leest het formulier uit en bewaart de regel.
     async function opslaan(gebeurtenis) {
       gebeurtenis.preventDefault()
-      const waarden = {}
-      for (const stof of VOEDINGSSTOFFEN) waarden[stof.sleutel] = leesGetal(waardeVelden[stof.sleutel].value)
       const invoer = {
         datum: bestaand ? regel.datum : datum,
         maaltijd: maaltijdVeld.value,
+        productRef: null,
         naam: naamVeld.value,
         hoeveelheid: leesGetal(hoeveelheidVeld.value),
         eenheid: eenheidVeld.value,
-        waarden
+        waarden: waarden.lees()
       }
       try {
         if (bestaand) await werkRegelBij(regel.id, invoer)
@@ -88,8 +71,7 @@ export function openRegelDialoog({ datum, maaltijd, regel = null }) {
         sluit()
       } catch (fout) {
         if (!(fout instanceof OngeldigeInvoer)) throw fout
-        foutVak.replaceChildren(el('ul', {}, fout.fouten.map((f) => el('li', {}, f))))
-        foutVak.scrollIntoView({ block: 'nearest' })
+        toonFouten(foutVak, fout.fouten)
       }
     }
 
@@ -112,11 +94,7 @@ export function openRegelDialoog({ datum, maaltijd, regel = null }) {
         el('div', { class: 'naast-elkaar' }, hoeveelheidVeld, eenheidVeld)
       ),
       voorbeeld,
-      el('fieldset', { class: 'waarden' },
-        legende,
-        el('p', { class: 'hint' }, 'Weet je een waarde niet? Laat het veld leeg. Dan telt die niet mee en zie je "–".'),
-        waardeRijen
-      ),
+      waarden.element,
       foutVak,
       el('div', { class: 'knoppen' },
         bestaand ? el('button', { type: 'button', class: 'knop knop-gevaar', onclick: verwijder }, 'Verwijderen') : null,
@@ -127,7 +105,7 @@ export function openRegelDialoog({ datum, maaltijd, regel = null }) {
     formulier.addEventListener('input', werkVoorbeeldBij)
     werkVoorbeeldBij()
 
-    const { sluit } = openDialoog(bestaand ? 'Aanpassen' : 'Toevoegen', formulier, () => klaar(uitkomst))
-    if (!bestaand) naamVeld.focus()
+    const { sluit } = openDialoog(bestaand ? 'Aanpassen' : 'Handmatig invoeren', formulier, () => klaar(uitkomst))
+    if (!begin) naamVeld.focus()
   })
 }

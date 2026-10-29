@@ -21,7 +21,8 @@ phoenix/
 ├─ index.html                startpagina
 ├─ public/                   iconen, NEVO-JSON (ongewijzigd meegeleverd)
 ├─ scripts/
-│  └─ nevo-naar-json.js      zet het NEVO-bestand om naar public/nevo.json
+│  ├─ nevo-naar-json.js      zet het NEVO-bestand om naar public/nevo.json
+│  └─ nevo-lezen.js          hulpfuncties daarvoor (getest)
 ├─ src/
 │  ├─ main.js                start de app, kiest het scherm
 │  ├─ opslag/                ALLES wat met IndexedDB te maken heeft
@@ -71,18 +72,19 @@ Een ontbrekende waarde is `null`, nooit 0.
 ### Tabellen
 | Tabel | Velden | Opmerking |
 |---|---|---|
-| `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?`, `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `favoriet`, `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
+| `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?`, `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
 | `porties` | `id`, `nevoCode`, `naam`, `gram` | Eigen porties bij NEVO-producten (bv. "1 snee" = 35 g). |
-| `recepten` | `id`, `naam`, `aantalPorties`, `ingredienten` [{`productRef`, `hoeveelheid`, `eenheid`}], `favoriet`, `bijgewerkt` | Waarden per portie worden berekend, niet opgeslagen. |
-| `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`} of `null` (handmatige invoer), `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), `portieNaam?`, `gram`, `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
+| `recepten` | `id`, `naam`, `aantalPorties`, `ingredienten` [{`productRef`, `hoeveelheid`, `eenheid`}], `bijgewerkt` | Waarden per portie worden berekend, niet opgeslagen. |
+| `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`} of `null` (handmatige invoer), `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), bij een portie ook `portieNaam`, `portieGram` en `basisEenheid` ('g' \| 'ml'), `gram` (= hoeveelheid in g/ml), `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
 | `gewicht` | `id`, `datum`, `kg` | Eén meting per datum; nieuwe invoer op dezelfde datum vervangt. |
 | `bewegingssoorten` | `id`, `naam`, `met`, `metAfstand` (ja/nee), `eigen` | Startlijst uit `gegevens/bewegingssoorten.js`; zelf uitbreidbaar. |
 | `beweging` | `id`, `datum`, `soortId`, `soortNaam`, `met` (momentopname), `minuten`, `afstandKm?`, `notitie?` | kcal wordt berekend met het gewicht dat het dichtst bij die datum ligt. |
+| `favorieten` | `sleutel` (bv. 'nevo:123' of 'eigen:5') | Sinds schemaversie 2. Eén tabel voor favorieten van NEVO- én eigen producten (NEVO-producten staan niet in de database). |
 | `instellingen` | sleutel/waarde: `profiel` (lengte, geboortejaar, formule man/vrouw, activiteitsniveau), `doelen`, `bewegingOptellen` (standaard `false`), `laatsteBackup`, `installUitlegGezien` | |
 
 Indexen: `dagboek` op `datum` en `[datum+maaltijd]`; `gewicht` en `beweging`
-op `datum`; `producten` op `barcode`, `naam`. (Favorieten worden gefilterd
-zonder index: IndexedDB kan niet zoeken op ja/nee-waarden.)
+op `datum`; `producten` op `barcode`, `naam`. (Favorieten staan in een eigen
+tabel `favorieten`, zie hierboven.)
 
 ### Schemaversie en migraties
 - `src/opslag/db.js` definieert elke versie met Dexie `.version(n).upgrade()`.

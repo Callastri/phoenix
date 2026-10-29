@@ -63,3 +63,72 @@
   border-style: dashed;
   color: var(--accent);
 }
+
+/* Dagboek: kopiëren van de vorige dag */
+.knop-kopieer {
+  width: 100%;
+  margin-top: 8px;
+  font-weight: normal;
+  color: var(--tekst-zacht);
+}
+
+/* Toevoegen: kop, zoekveld, tabs, resultaten */
+.scherm-kop { display: flex; align-items: center; gap: 12px; }
+.scherm-kop .schermtitel { font-size: 1.3rem; }
+.zoekveld {
+  width: 100%;
+  min-height: 48px;
+  margin: 8px 0;
+  padding: 8px 14px;
+  font-size: 17px;
+  color: var(--tekst);
+  background: var(--vlak);
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--rand);
+}
+.tabs[hidden] { display: none; }
+.tab {
+  flex: 1;
+  min-height: 40px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--tekst);
+  font: inherit;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--vlak); font-weight: 600; box-shadow: var(--schaduw); }
+.resultaten {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px;
+  background: var(--vlak);
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+}
+.resultaten li:first-child .resultaat { border-top: none; }
+.resultaat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 0;
+  border: none;
+  border-top: 1px solid var(--rand);
+  background: none;
+  color: var(--tekst);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.resultaten .leeg { padding: 14px 0; color: var(--tekst-zacht); }
+.knoppen-onder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.bronvermelding { margin-top: 16px; }
