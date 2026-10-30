@@ -30,7 +30,8 @@ van de eigenaar. Pas daarna start de volgende fase.
 
 ## Fase 2 — NEVO, zoeken, recent, favorieten
 - [x] Script om NEVO om te zetten naar compact JSON (`scripts/nevo-naar-json.js`)
-- [ ] Het echte NEVO-bestand omzetten en meeleveren *(wacht op bestand + besluit eigenaar)*
+- [x] Het echte NEVO-bestand (2025/9.0, 2328 producten) omzetten en meeleveren;
+      elke waarde automatisch vergeleken met het RIVM-bestand (0 afwijkingen)
 - [x] Bronvermelding: "Gebaseerd op gegevens van NEVO-online versie 2025/9.0,
       RIVM, Bilthoven en andere gegevens" + link naar nevo-online.rivm.nl
 - [x] Zoeken op naam (zonder accenten/hoofdletters te onderscheiden)
