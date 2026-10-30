@@ -104,6 +104,6 @@ van de eigenaar. Pas daarna start de volgende fase.
 5. **NEVO-bestand.** Zie PRIVACY.md/ARCHITECTUUR.md: de voorwaarden moeten
    nog gecontroleerd worden en mogelijk moet je het bestand zelf
    downloaden bij RIVM. Dit is pas nodig in fase 2.
-   **Status: voorwaarden gecontroleerd** (zie PRIVACY.md). Nog nodig vóór
-   fase 2: het databestand downloaden (formulier op rivm.nl, akkoord met
-   de voorwaarden door de eigenaar).
+   **Besluit: toegestaan.** Het RIVM bevestigde op 30-10-2026 dat alle vier
+   de punten mogen (zie PRIVACY.md). Nog nodig: het databestand, door de
+   eigenaar gedownload (formulier op rivm.nl, akkoord met de voorwaarden).

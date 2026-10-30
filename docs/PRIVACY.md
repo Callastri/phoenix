@@ -59,8 +59,13 @@ in de browser van de gebruiker.
     NEVO-online versie 2025/9.0, RIVM, Bilthoven en andere gegevens".
   - Bij een nieuwe NEVO-versie: oude versie vervangen (README legt uit hoe).
   - RIVM is niet aansprakelijk voor fouten; dit staat in het scherm "Over".
-  - De voorwaarden verbieden niet uitdrukkelijk het meeleveren van de
-    gegevens in een app. [Waarschijnlijk toegestaan met bronvermelding, niet
-    juridisch bevestigd.] Bij twijfel: vraag het RIVM via nevo@rivm.nl.
+  - **Bevestigd door het RIVM** (antwoord van nevo@rivm.nl, ontvangen
+    30-10-2026, bewaard door de eigenaar): "Dit mag allemaal." De vraag ging over:
+    1. een selectie uit het databestand ongewijzigd meeleveren met de app,
+       ook openbaar in de GitHub-repository (niet het originele bestand);
+    2. zout tonen, berekend als natrium × 2,5 en zo gemarkeerd;
+    3. eigen producten op basis van NEVO, duidelijk als "eigen" getoond;
+    4. de bronvermelding "Gebaseerd op gegevens van NEVO-online versie
+       2025/9.0, RIVM, Bilthoven en andere gegevens" met link naar NEVO-online.
 - **Open Food Facts:** gegevens vallen onder de Open Database License
   (ODbL). De app vermeldt de bron en de licentie.
