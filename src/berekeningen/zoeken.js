@@ -15,19 +15,42 @@ export function normaliseer(tekst) {
 // Geeft een score: hoe beter het product bij de zoekterm past, hoe hoger.
 // 0 betekent: past niet (niet elk zoekwoord komt voor).
 // In:  genormaliseerde tekst van het product en de zoekwoorden
+//
+// NEVO zet het hoofdproduct vooraan ("Melk halfvolle", "Ei kippen- gekookt").
+// Daarom tellen mee:
+// - elk zoekwoord dat een heel woord in de naam is (of het begin van een woord);
+// - of het EERSTE woord van de naam bij de zoekwoorden past;
+// - hoeveel van de naam door de zoekwoorden gedekt wordt
+//   ("Melk halfvolle" past beter bij "halfvolle melk" dan "Saus v halfvolle melk en maizena").
 function score(naam, extra, woorden) {
   const alles = `${naam} ${extra}`
   if (!woorden.every((w) => alles.includes(w))) return 0
-  const zinsdeel = woorden.join(' ')
+  const naamWoorden = naam.split(' ').filter(Boolean)
   let punten = 1
-  if (naam.startsWith(zinsdeel)) punten += 100                    // naam begint met de zoekterm
-  else if (naam.includes(zinsdeel)) punten += 40                  // zoekterm staat in de naam
-  const naamWoorden = naam.split(' ')
+
   for (const w of woorden) {
-    if (naamWoorden.includes(w)) punten += 20                          // heel woord ("appel")
-    else if (naamWoorden.some((deel) => deel.startsWith(w))) punten += 10  // begin van een woord ("appelmoes")
+    if (naamWoorden.includes(w)) punten += 25                               // heel woord ("appel")
+    else if (naamWoorden.some((deel) => deel.startsWith(w))) punten += 12   // begin van een woord ("appelmoes")
+    else if (naamWoorden.some((deel) => deel.includes(w))) punten += 8      // in een samengesteld woord ("tarwebrood")
   }
-  punten -= naam.length / 100                                       // kortere namen iets hoger
+
+  const eerste = naamWoorden[0] ?? ''
+  if (woorden.includes(eerste)) punten += 15
+  else if (woorden.some((w) => eerste.startsWith(w))) punten += 8
+  else if (woorden.some((w) => eerste.includes(w))) punten += 5
+
+  let gedekt = 0
+  for (const deel of naamWoorden) {
+    if (woorden.includes(deel)) gedekt += 1
+    else if (woorden.some((w) => deel.includes(w))) gedekt += 0.5
+  }
+  punten += 60 * (gedekt / Math.max(naamWoorden.length, 1))
+
+  const zinsdeel = woorden.join(' ')
+  if (naam.startsWith(zinsdeel)) punten += 30
+  else if (naam.includes(zinsdeel)) punten += 10
+
+  punten -= naam.length / 100                                               // kortere namen iets hoger
   return punten
 }
 

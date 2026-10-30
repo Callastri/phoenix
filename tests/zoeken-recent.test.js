@@ -26,6 +26,22 @@ describe('zoekProducten', () => {
     expect(uit).toContain('Taart appel-')
     expect(uit).not.toContain('Peer')
   })
+  it('NEVO-woordvolgorde: hoofdproduct vooraan wint', () => {
+    const lijst = [
+      { naam: 'Saus v halfvolle melk en maizena' },
+      { naam: 'Aardappelpuree instant- bereid m halfvolle melk' },
+      { naam: 'Melk halfvolle' },
+      { naam: 'Prei gekookt' },
+      { naam: 'Pasta witte m ei gekookt' },
+      { naam: 'Ei kippen- gekookt gem' },
+      { naam: 'Tosti ham-kaas v bruin/volkoren brood' },
+      { naam: 'Roggebrood volkoren' }
+    ]
+    expect(zoekProducten(lijst, 'halfvolle melk')[0].naam).toBe('Melk halfvolle')
+    expect(zoekProducten(lijst, 'ei gekookt')[0].naam).toBe('Ei kippen- gekookt gem')
+    // samengestelde woorden: "brood" in "Roggebrood"
+    expect(zoekProducten(lijst, 'volkoren brood')[0].naam).toBe('Roggebrood volkoren')
+  })
   it('alle woorden moeten voorkomen', () => {
     expect(zoekProducten(producten, 'appel schil').map((p) => p.naam)).toEqual(['Appel m schil gem'])
   })

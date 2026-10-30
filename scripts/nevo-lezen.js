@@ -12,15 +12,16 @@ export const KOLOM_NAMEN = {
   code: ['nevocode', 'code'],
   naam: ['voedingsmiddelnaam', 'voedingsmiddelnaamdutchfoodname', 'dutchfoodname'],
   synoniem: ['synoniem', 'synonym'],
-  hoeveelheid: ['hoeveelheid', 'quantity'],
-  versie: ['nevoversie', 'nevoversion'],
-  kcal: ['enercc', 'kcal', 'kcalkcal', 'energiekcal'],
-  eiwit: ['prot', 'eiwit', 'eiwitg', 'eiwittotaal', 'eiwittotaalg'],
-  koolhydraten: ['cho', 'koolhydraten', 'koolhydrateng'],
-  vet: ['fat', 'vet', 'vetg', 'vettotaal', 'vettotaalg'],
-  vezels: ['fibt', 'vezel', 'vezelg', 'voedingsvezel', 'voedingsvezelg'],
-  suiker: ['sugar', 'monodisachariden', 'monodisacharideng'],
-  natriumMg: ['na', 'natrium', 'natriummg']
+  hoeveelheid: ['hoeveelheid', 'quantity', 'hoeveelheidquantity'],
+  versie: ['nevoversie', 'nevoversion', 'nevoversienevoversion'],
+  // In NEVO 2025/9.0 heten de kolommen bijvoorbeeld "ENERCC (kcal)" → 'enercckcal'.
+  kcal: ['enercckcal', 'enercc', 'kcal', 'kcalkcal', 'energiekcal'],
+  eiwit: ['protg', 'prot', 'eiwit', 'eiwitg', 'eiwittotaal', 'eiwittotaalg'],
+  koolhydraten: ['chog', 'cho', 'koolhydraten', 'koolhydrateng'],
+  vet: ['fatg', 'fat', 'vet', 'vetg', 'vettotaal', 'vettotaalg'],
+  vezels: ['fibtg', 'fibt', 'vezel', 'vezelg', 'voedingsvezel', 'voedingsvezelg'],
+  suiker: ['sugarg', 'sugar', 'monodisachariden', 'monodisacharideng'],
+  natriumMg: ['namg', 'na', 'natrium', 'natriummg']
 }
 const VERPLICHT = ['code', 'naam', 'kcal', 'eiwit', 'koolhydraten', 'vet', 'vezels', 'suiker', 'natriumMg']
 

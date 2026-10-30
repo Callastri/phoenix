@@ -30,7 +30,8 @@ van de eigenaar. Pas daarna start de volgende fase.
 
 ## Fase 2 — NEVO, zoeken, recent, favorieten
 - [x] Script om NEVO om te zetten naar compact JSON (`scripts/nevo-naar-json.js`)
-- [ ] Het echte NEVO-bestand omzetten en meeleveren *(wacht op bestand + besluit eigenaar)*
+- [x] Het echte NEVO-bestand (2025/9.0, 2328 producten) omzetten en meeleveren;
+      elke waarde automatisch vergeleken met het RIVM-bestand (0 afwijkingen)
 - [x] Bronvermelding: "Gebaseerd op gegevens van NEVO-online versie 2025/9.0,
       RIVM, Bilthoven en andere gegevens" + link naar nevo-online.rivm.nl
 - [x] Zoeken op naam (zonder accenten/hoofdletters te onderscheiden)
@@ -104,6 +105,6 @@ van de eigenaar. Pas daarna start de volgende fase.
 5. **NEVO-bestand.** Zie PRIVACY.md/ARCHITECTUUR.md: de voorwaarden moeten
    nog gecontroleerd worden en mogelijk moet je het bestand zelf
    downloaden bij RIVM. Dit is pas nodig in fase 2.
-   **Status: voorwaarden gecontroleerd** (zie PRIVACY.md). Nog nodig vóór
-   fase 2: het databestand downloaden (formulier op rivm.nl, akkoord met
-   de voorwaarden door de eigenaar).
+   **Besluit: toegestaan.** Het RIVM bevestigde op 30-10-2026 dat alle vier
+   de punten mogen (zie PRIVACY.md). Nog nodig: het databestand, door de
+   eigenaar gedownload (formulier op rivm.nl, akkoord met de voorwaarden).

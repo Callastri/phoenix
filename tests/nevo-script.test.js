@@ -30,6 +30,24 @@ describe('CSV lezen', () => {
   })
 })
 
+// Zelfde kopregel-vorm als het echte bestand NEVO2025_v9.0.csv (waarden verzonnen).
+const CSV_2025 = [
+  '"NEVO-versie/NEVO-version"|"Voedingsmiddelgroep"|"Food group"|"NEVO-code"|"Voedingsmiddelnaam/Dutch food name"|"Engelse naam/Food name"|"Synoniem"|"Hoeveelheid/Quantity"|"Opmerking"|"ENERCJ (kJ)"|"ENERCC (kcal)"|"WATER (g)"|"PROT (g)"|"PROTPL (g)"|"FAT (g)"|"CHO (g)"|"SUGAR (g)"|"NVSUGAF (g)"|"FIBT (g)"|"NA (mg)"|"K (mg)"',
+  'NEVO-Online 2099 1.0|Groep|Group|7|Testkaas|Test cheese||per 100g||"1500"|"360"|"40"|"25"|"0"|"28"|"0"|"0"||"0"|"800"|"90"',
+  'NEVO-Online 2099 1.0|Groep|Group|8|Testsap|Test juice|sap|per 100ml||"180"|"43"|"88"|"0,5"|"0,5"|"0"|"10"|"9,5"||"0,1"||"120"'
+].join('\r\n')
+
+describe('NEVO 2025-formaat', () => {
+  it('vindt de kolommen en neemt de juiste over (niet PROTPL, NVSUGAF, K enz.)', () => {
+    const { bestand } = zetNevoOm(CSV_2025, '2099/1.0')
+    expect(bestand.versie).toBe('2099/1.0')
+    expect(bestand.rijen).toEqual([
+      [7, 'Testkaas', '', 'g', 360, 25, 0, 28, 0, 0, 800],
+      [8, 'Testsap', 'sap', 'ml', 43, 0.5, 10, 0, 0.1, 9.5, null]
+    ])
+  })
+})
+
 describe('NEVO omzetten', () => {
   const { bestand, waarschuwingen } = zetNevoOm(CSV)
   it('neemt de juiste kolommen ongewijzigd over, gesorteerd op code', () => {
