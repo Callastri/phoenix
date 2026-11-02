@@ -103,6 +103,8 @@ export function controleerProduct(product) {
   if (product.barcode !== undefined && product.barcode !== null && !/^\d{6,14}$/.test(product.barcode)) {
     fouten.push('Ongeldige barcode.')
   }
+  if (product.bron === 'off' && !product.barcode) fouten.push('Product van Open Food Facts zonder barcode.')
+  if (product.merk !== undefined) controleerNaam(product.merk, fouten, 'Merk')
   fouten.push(...controleerWaarden(product.waarden))
   if (product.gebaseerdOpNevo !== undefined && product.gebaseerdOpNevo !== null && !(Number.isInteger(product.gebaseerdOpNevo) && product.gebaseerdOpNevo > 0)) {
     fouten.push('Ongeldige NEVO-code.')

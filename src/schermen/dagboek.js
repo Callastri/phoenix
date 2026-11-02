@@ -10,7 +10,7 @@ import { MAALTIJDEN, MAALTIJD_SLEUTELS } from '../gegevens/maaltijden.js'
 import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
 import { BACKUP_HERINNERING_DAGEN } from '../gegevens/drempels.js'
 import { vandaag, verschuifDag, toonDatum, isGeldigeDatum } from '../berekeningen/datum.js'
-import { toonGetal } from '../berekeningen/getallen.js'
+import { toonGetal, toonKortGetal } from '../berekeningen/getallen.js'
 import { totaalVanRegels, totaalPerMaaltijd, waardenVanRegel } from '../berekeningen/voeding.js'
 import { moetBackupHerinneren } from '../berekeningen/herinnering.js'
 import { regelsVanDag, aantalRegels, kopieerMaaltijd } from '../opslag/dagboek.js'
@@ -85,11 +85,12 @@ function maakTotalen(totaal) {
   )
 }
 
-// Toont de hoeveelheid van een regel, bijvoorbeeld "50 g" of "2 × snee (70 g)".
+// Toont de hoeveelheid van een regel, bijvoorbeeld "50 g" of "2 × snee · 70 g".
 function toonHoeveelheid(regel) {
-  const getal = (n) => toonGetal(n, n % 1 ? 1 : 0)
-  if (regel.eenheid === 'portie') return `${getal(regel.hoeveelheid)} × ${regel.portieNaam} (${getal(regel.gram)} ${regel.basisEenheid})`
-  return `${getal(regel.hoeveelheid)} ${regel.eenheid}`
+  if (regel.eenheid === 'portie') {
+    return `${toonKortGetal(regel.hoeveelheid)} × ${regel.portieNaam} · ${toonKortGetal(regel.gram)} ${regel.basisEenheid}`
+  }
+  return `${toonKortGetal(regel.hoeveelheid)} ${regel.eenheid}`
 }
 
 // Opent de juiste dialoog om een regel aan te passen.

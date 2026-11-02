@@ -165,7 +165,8 @@ function sectieOver(nevo) {
     el('h2', {}, 'Over deze app'),
     el('p', {}, `Voedingsdagboek, versie ${APP_VERSIE}. Gratis, zonder advertenties, zonder account.`),
     el('p', {}, 'Al je gegevens blijven op dit toestel. Er gaat niets naar een server. ',
-      'Enige uitzondering (vanaf een volgende versie): bij het scannen van een barcode wordt alleen het barcodenummer opgezocht bij Open Food Facts.'),
+      'Enige uitzondering: bij het scannen van een nieuwe barcode wordt alleen het barcodenummer opgezocht bij Open Food Facts. ',
+      'Een gevonden product wordt op je toestel bewaard; daarna werkt het ook zonder internet.'),
     el('h3', {}, 'Bronnen'),
     nevo
       ? el('p', {},
@@ -175,6 +176,12 @@ function sectieOver(nevo) {
           'Eigen producten en eigen porties zijn aanvullingen van jezelf, geen NEVO-gegevens. ',
           'Het RIVM is niet aansprakelijk voor fouten in of verkeerd gebruik van de gegevens.')
       : el('p', {}, 'De NEVO-tabel is nog niet toegevoegd.'),
+    el('p', {},
+      'Gescande producten: gegevens van ',
+      el('a', { href: 'https://world.openfoodfacts.org/', rel: 'noopener' }, 'Open Food Facts'),
+      ', beschikbaar onder de ',
+      el('a', { href: 'https://opendatacommons.org/licenses/odbl/1-0/', rel: 'noopener' }, 'Open Database License (ODbL)'),
+      '. Ingevuld door vrijwilligers; controleer bij twijfel de verpakking.'),
     el('p', {}, 'Broncode: ', el('a', { href: 'https://github.com/Callastri/phoenix', rel: 'noopener' }, 'github.com/Callastri/phoenix'))
   )
 }

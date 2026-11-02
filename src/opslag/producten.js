@@ -15,16 +15,35 @@ export async function alleEigenProducten() {
   return db.producten.filter((p) => p.bron === 'eigen').toArray()
 }
 
+// Alle producten in de database: eigen producten én gescande producten (Open Food Facts).
+export async function alleMijnProducten() {
+  return db.producten.toArray()
+}
+
+// Zoekt een product met deze barcode op het toestel (eigen of eerder gescand).
+// Een eigen product gaat voor. Uit: het product of undefined.
+export async function productMetBarcode(barcode) {
+  const gevonden = await db.producten.where('barcode').equals(barcode).toArray()
+  return gevonden.find((p) => p.bron === 'eigen') ?? gevonden[0]
+}
+
+// Bewaart een product van Open Food Facts op het toestel (daarna werkt het offline).
+// Uit: het volgnummer.
+export async function bewaarGescandProduct(product) {
+  return bewaarEigenProduct({ ...product, bron: 'off' })
+}
+
 // Eén product (eigen of van Open Food Facts) op volgnummer.
 export async function productMetId(id) {
   return db.producten.get(id)
 }
 
 // Bewaart een eigen product (nieuw of aangepast). Uit: het volgnummer.
+// Ook gebruikt voor (aangepaste) producten van Open Food Facts: dan is invoer.bron 'off'.
 // Gooit OngeldigeInvoer als er iets niet klopt.
 export async function bewaarEigenProduct(invoer) {
   const product = {
-    bron: 'eigen',
+    bron: invoer.bron === 'off' ? 'off' : 'eigen',
     naam: typeof invoer.naam === 'string' ? invoer.naam.trim() : invoer.naam,
     eenheid: invoer.eenheid,
     waarden: invoer.waarden,
@@ -32,6 +51,9 @@ export async function bewaarEigenProduct(invoer) {
     bijgewerkt: new Date().toISOString()
   }
   if (invoer.gebaseerdOpNevo) product.gebaseerdOpNevo = invoer.gebaseerdOpNevo
+  if (invoer.barcode) product.barcode = invoer.barcode
+  if (invoer.merk) product.merk = invoer.merk
+  if (invoer.aangepast) product.aangepast = true
   if (invoer.id) product.id = invoer.id
   const fouten = controleerProduct(product)
   if (fouten.length > 0) throw new OngeldigeInvoer(fouten)
@@ -42,8 +64,9 @@ export async function bewaarEigenProduct(invoer) {
 // (die hebben hun eigen kopie van de voedingswaarden).
 export async function verwijderEigenProduct(id) {
   await db.transaction('rw', db.producten, db.favorieten, async () => {
+    const product = await db.producten.get(id)
     await db.producten.delete(id)
-    await db.favorieten.delete(`eigen:${id}`)
+    await db.favorieten.delete(`${product?.bron === 'off' ? 'off' : 'eigen'}:${id}`)
   })
 }
 

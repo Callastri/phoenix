@@ -10,6 +10,11 @@ in de browser van de gebruiker.
 - Wat Open Food Facts daarbij onvermijdelijk ziet (zoals bij elke website):
   je IP-adres en het type browser. Er gaat geen naam, gewicht, dagboek of
   andere persoonsgegevens mee.
+- Het verzoek gaat zonder cookies en zonder "referrer" (Open Food Facts ziet
+  dus niet vanaf welke website het komt), en alleen na een geldige barcode
+  (controlecijfer klopt). Dit is getest.
+- Het camerabeeld verlaat het toestel niet: de barcode wordt op de telefoon
+  zelf gelezen.
 - Eenmaal gevonden producten worden lokaal bewaard; dezelfde barcode
   opnieuw scannen gebeurt zonder netwerk.
 - Het netwerkverzoek staat op één plek in de code:

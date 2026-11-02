@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { leesGetal, toonGetal } from '../src/berekeningen/getallen.js'
+import { leesGetal, toonGetal, toonPortie } from '../src/berekeningen/getallen.js'
 
 describe('leesGetal', () => {
   it('leest komma en punt', () => {
@@ -33,5 +33,18 @@ describe('toonGetal', () => {
   })
   it('geen -0', () => {
     expect(toonGetal(-0.01, 0)).toBe('0')
+  })
+})
+
+describe('toonPortie', () => {
+  it('voegt het gewicht toe', () => {
+    expect(toonPortie('snee', 35, 'g')).toBe('snee (35 g)')
+    expect(toonPortie('glas', 200, 'ml')).toBe('glas (200 ml)')
+    expect(toonPortie('stuk', 12.5, 'g')).toBe('stuk (12,5 g)')
+  })
+  it('niet dubbel als het gewicht al in de naam staat', () => {
+    expect(toonPortie('2 koeken (25 g)', 25, 'g')).toBe('2 koeken (25 g)')
+    expect(toonPortie('1 portion (330 ml)', 330, 'ml')).toBe('1 portion (330 ml)')
+    expect(toonPortie('1 blik 330ml', 330, 'ml')).toBe('1 blik 330ml')
   })
 })

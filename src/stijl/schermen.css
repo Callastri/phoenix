@@ -132,3 +132,8 @@
 .resultaten .leeg { padding: 14px 0; color: var(--tekst-zacht); }
 .knoppen-onder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 .bronvermelding { margin-top: 16px; }
+
+/* Toevoegen: zoekveld met scanknop ernaast */
+.zoek-rij { display: flex; gap: 8px; align-items: center; }
+.zoek-rij .zoekveld { flex: 1; }
+.knop-scan { min-height: 48px; white-space: nowrap; }
