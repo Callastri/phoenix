@@ -21,6 +21,17 @@ export function basisHoeveelheid(hoeveelheid, eenheid, portieGram = null) {
   throw new Error(`Onbekende eenheid: ${eenheid}`)
 }
 
+// Nieuwe hoeveelheid als je van eenheid wisselt, zodat er geen "100 porties"
+// ontstaat uit "100 gram".
+// In:  huidige hoeveelheid, gewicht van de huidige portie (null = nu in gram/ml),
+//      en of je naar een portie wisselt
+// Uit: naar een portie → 1; naar gram/ml → hetzelfde totaal (2 × 35 g → 70)
+export function hoeveelheidNaWissel(hoeveelheid, vanPortieGram, naarPortie) {
+  if (naarPortie) return 1
+  if (vanPortieGram && hoeveelheid > 0) return Math.round(hoeveelheid * vanPortieGram * 10) / 10
+  return hoeveelheid
+}
+
 // Rekent natrium (mg) om naar zout (g), volgens de EU-regel: zout = natrium × 2,5.
 // NEVO geeft alleen natrium; de app toont zout en vermeldt dat het berekend is.
 // In:  natrium in mg (of null)   Uit: zout in g (of null)
