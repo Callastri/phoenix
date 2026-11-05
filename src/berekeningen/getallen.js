@@ -24,3 +24,17 @@ export function toonGetal(getal, decimalen = 0) {
   const zonderMinNul = Object.is(afgerond, -0) ? 0 : afgerond
   return zonderMinNul.toFixed(decimalen).replace('.', ',')
 }
+
+// Toont een getal zonder overbodige ",0": 25 → "25", 2,5 → "2,5".
+export function toonKortGetal(getal) {
+  return toonGetal(getal, getal % 1 ? 1 : 0)
+}
+
+// Toont een portie met het gewicht erbij, bijvoorbeeld "snee (35 g)".
+// Staat het gewicht al in de naam (zoals "2 koeken (25 g)"), dan niet nog eens.
+export function toonPortie(naam, gram, eenheid) {
+  const gewicht = `${toonKortGetal(gram)} ${eenheid}`
+  const zonderSpatie = (t) => t.replace(/\s/g, '').replace(',', '.').toLowerCase()
+  if (zonderSpatie(naam).includes(zonderSpatie(`${gram}${eenheid}`))) return naam
+  return `${naam} (${gewicht})`
+}

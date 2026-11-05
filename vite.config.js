@@ -10,7 +10,8 @@ const pakket = JSON.parse(readFileSync(new URL('./package.json', import.meta.url
 // Zo kan geen enkel script stiekem gegevens versturen. Zie docs/PRIVACY.md.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  // 'wasm-unsafe-eval' is nodig voor de barcodelezer (WebAssembly); dit staat géén gewone eval toe.
+  "script-src 'self' 'wasm-unsafe-eval'",
   "style-src 'self'",
   "img-src 'self' data: blob:",
   "connect-src 'self' https://world.openfoodfacts.org",

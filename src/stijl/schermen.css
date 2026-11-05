@@ -132,3 +132,12 @@
 .resultaten .leeg { padding: 14px 0; color: var(--tekst-zacht); }
 .knoppen-onder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 .bronvermelding { margin-top: 16px; }
+
+/* Toevoegen: zoekveld met scanknop ernaast */
+.zoek-rij { display: flex; gap: 8px; align-items: center; }
+.zoek-rij .zoekveld { flex: 1; }
+.knop-scan { min-height: 48px; white-space: nowrap; }
+
+/* Dagboek: doel en beweging */
+.budget-tekst { margin: 0 0 8px; text-align: center; font-weight: 600; }
+.beweging-regel { margin: -4px 4px 8px; }

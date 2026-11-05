@@ -7,18 +7,20 @@ import { openProductDialoog } from '../onderdelen/productDialoog.js'
 import { openRegelDialoog } from '../onderdelen/regelDialoog.js'
 import { openEigenProductDialoog } from '../onderdelen/eigenProductDialoog.js'
 import { toonMelding } from '../onderdelen/melding.js'
+import { openScanDialoog } from '../onderdelen/scanDialoog.js'
+import { bevestig } from '../onderdelen/dialoog.js'
 import { MAALTIJD_SLEUTELS, maaltijdNaam } from '../gegevens/maaltijden.js'
 import { isGeldigeDatum } from '../berekeningen/datum.js'
 import { toonGetal } from '../berekeningen/getallen.js'
 import { recenteRegels } from '../opslag/dagboek.js'
 import { alleFavorieten } from '../opslag/producten.js'
-import { zoekAlles, haalProduct, bronTekst, eigenProductenGesorteerd } from '../diensten/producten.js'
+import { zoekAlles, haalProduct, bronTekst, mijnProductenGesorteerd, zoekOpBarcode } from '../diensten/producten.js'
 import { laadNevo, nevoBronvermelding } from '../diensten/nevo.js'
 
 const TABS = [
   { sleutel: 'recent', naam: 'Recent' },
   { sleutel: 'favorieten', naam: 'Favorieten' },
-  { sleutel: 'eigen', naam: 'Eigen' }
+  { sleutel: 'eigen', naam: 'Mijn producten' }
 ]
 
 // Onthoudt de gekozen tab zolang de app open is.
@@ -63,7 +65,8 @@ export async function toonToevoegen(container, [datum, maaltijd] = []) {
         : await openEigenProductDialoog({ product: bewerk })
       await toonLijst()
       if (resultaatBewerken && resultaatBewerken.id) {
-        const nieuw = await haalProduct({ soort: 'eigen', id: resultaatBewerken.id })
+        const soort = bewerk.bron === 'off' ? 'off' : 'eigen'
+        const nieuw = await haalProduct({ soort, id: resultaatBewerken.id })
         if (nieuw) await kiesProduct(nieuw)
       }
     }
@@ -75,8 +78,28 @@ export async function toonToevoegen(container, [datum, maaltijd] = []) {
     if (uitkomst === 'opgeslagen') { toonMelding('Toegevoegd'); terugNaarDagboek() }
   }
 
-  async function nieuwEigenProduct() {
-    const uitkomst = await openEigenProductDialoog()
+  // Barcode scannen (of intypen) en het product opzoeken.
+  async function scan() {
+    const code = await openScanDialoog()
+    if (!code) return
+    toonMelding('Zoeken…')
+    const resultaat = await zoekOpBarcode(code)
+    if (resultaat.status === 'gevonden') {
+      if (resultaat.opmerkingen.length > 0) toonMelding('Let op: sommige waarden van Open Food Facts waren onmogelijk en zijn leeg gelaten.')
+      await kiesProduct(resultaat.product)
+      return
+    }
+    const teksten = {
+      'niet-gevonden': `Barcode ${code} staat niet in Open Food Facts. Wil je zelf een product maken met deze barcode? Neem de waarden over van de verpakking.`,
+      'geen-verbinding': `Geen internetverbinding. Barcode ${code} is nog niet eerder gescand. Wil je zelf een product maken met deze barcode?`,
+      fout: `Opzoeken van barcode ${code} lukte niet. Wil je zelf een product maken met deze barcode?`
+    }
+    const maken = await bevestig({ titel: 'Niet gevonden', tekst: teksten[resultaat.status], knopTekst: 'Product maken' })
+    if (maken) await nieuwEigenProduct(code)
+  }
+
+  async function nieuwEigenProduct(barcode = null) {
+    const uitkomst = await openEigenProductDialoog({ barcode })
     if (uitkomst && uitkomst.id) {
       const nieuw = await haalProduct({ soort: 'eigen', id: uitkomst.id })
       await toonLijst()
@@ -108,9 +131,9 @@ export async function toonToevoegen(container, [datum, maaltijd] = []) {
       items.sort((a, b) => a.textContent.localeCompare(b.textContent, 'nl'))
       leeg = 'Nog geen favorieten. Tik bij een product op ☆ Favoriet.'
     } else {
-      const eigen = await eigenProductenGesorteerd()
-      items = eigen.map((p) => resultaat(p.naam, onderschriftVan(p), () => kiesProduct(p)))
-      leeg = 'Nog geen eigen producten.'
+      const mijn = await mijnProductenGesorteerd()
+      items = mijn.map((p) => resultaat(p.naam, onderschriftVan(p), () => kiesProduct(p)))
+      leeg = 'Nog geen eigen of gescande producten.'
     }
     lijst.replaceChildren(...(items.length ? items : [el('li', { class: 'leeg' }, leeg)]))
   }
@@ -143,7 +166,11 @@ export async function toonToevoegen(container, [datum, maaltijd] = []) {
       el('button', { type: 'button', class: 'knop-rond', 'aria-label': 'Terug naar dagboek', onclick: terugNaarDagboek }, '‹'),
       el('h1', { class: 'schermtitel' }, `Toevoegen aan ${maaltijdNaam(maaltijd).toLowerCase()}`)
     ),
-    zoekVeld,
+    el('div', { class: 'zoek-rij' },
+      zoekVeld,
+      el('button', { type: 'button', class: 'knop knop-hoofd knop-scan', onclick: scan, 'aria-label': 'Barcode scannen' },
+        el('span', { 'aria-hidden': 'true' }, '▥'), ' Scan')
+    ),
     tabBalk,
     lijst,
     el('div', { class: 'knoppen-onder' },
@@ -155,7 +182,8 @@ export async function toonToevoegen(container, [datum, maaltijd] = []) {
   await toonLijst()
 
   const nevo = await laadNevo()
-  voet.textContent = nevo
+  voet.textContent = (nevo
     ? nevoBronvermelding(nevo.versie)
-    : 'De NEVO-tabel is nog niet toegevoegd aan de app. Je kunt wel eigen producten maken.'
+    : 'De NEVO-tabel is nog niet toegevoegd aan de app. Je kunt wel eigen producten maken.') +
+    ' Gescande producten: gegevens van Open Food Facts (ODbL).'
 }

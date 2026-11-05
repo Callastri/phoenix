@@ -16,6 +16,9 @@
   --let-op-vlak: #fff3d1;
   --let-op-tekst: #573f00;
   --schaduw: 0 1px 3px rgb(0 0 0 / 0.08);
+  /* Grafieken (gecontroleerd op kleurenblindheid en contrast) */
+  --serie-1: #2a78d6;   /* blauw: gemiddelde */
+  --serie-2: #eb6834;   /* oranje: metingen */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,5 +36,7 @@
     --let-op-vlak: #3a2f0f;
     --let-op-tekst: #f5dfa1;
     --schaduw: none;
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
   }
 }

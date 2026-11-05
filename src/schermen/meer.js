@@ -5,7 +5,9 @@ import { openDialoog, bevestig } from '../onderdelen/dialoog.js'
 import { toonMelding } from '../onderdelen/melding.js'
 import { vandaag, toonDatum } from '../berekeningen/datum.js'
 import { tekstLaatsteBackup } from '../berekeningen/herinnering.js'
-import { maakBackup, leesBackup, herstelBackup, wisAlles, maakCsv, backupBestandsnaam } from '../opslag/backup.js'
+import {
+  maakBackup, leesBackup, herstelBackup, wisAlles, maakCsv, maakGewichtCsvTekst, maakBewegingCsvTekst, backupBestandsnaam
+} from '../opslag/backup.js'
 import { leesInstelling, bewaarInstelling } from '../opslag/instellingen.js'
 import { deelBestand } from '../diensten/delen.js'
 import { statusPermanenteOpslag, vraagPermanenteOpslag, isGeinstalleerd } from '../diensten/toestel.js'
@@ -24,13 +26,26 @@ async function maakBackupBestand() {
   return new File([tekst], backupBestandsnaam(vandaag()), { type: 'application/json' })
 }
 
-async function maakCsvBestand() {
-  // ﻿ zorgt dat Excel letters als é en ë goed toont.
-  const tekst = '﻿' + (await maakCsv())
-  return new File([tekst], backupBestandsnaam(vandaag(), 'csv'), { type: 'text/csv' })
+// Maakt een CSV-bestand. "soort" is 'dagboek', 'gewicht' of 'beweging'.
+async function maakCsvBestand(soort) {
+  const maak = { dagboek: maakCsv, gewicht: maakGewichtCsvTekst, beweging: maakBewegingCsvTekst }[soort]
+  // \uFEFF zorgt dat Excel letters als é en ë goed toont.
+  const tekst = '\uFEFF' + (await maak())
+  return new File([tekst], `voedingsdagboek-${soort}-${vandaag()}.csv`, { type: 'text/csv' })
 }
 
-function sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken) {
+// Een knop die een (al klaargezet) bestand deelt of downloadt.
+function deelKnop(bestand, tekst) {
+  return el('button', {
+    type: 'button', class: 'knop knop-breed',
+    onclick: async () => {
+      const uitkomst = await deelBestand(bestand)
+      if (uitkomst !== 'geannuleerd') toonMelding('CSV bewaard')
+    }
+  }, tekst)
+}
+
+function sectieBackup(backupBestand, csvBestanden, laatsteBackup, herteken) {
   return el('section', { class: 'kaart' },
     el('h2', {}, 'Back-up'),
     el('p', {}, 'Laatste back-up: ', el('strong', {}, tekstLaatsteBackup(laatsteBackup, new Date()))),
@@ -47,13 +62,10 @@ function sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken) {
         herteken()
       }
     }, 'Back-up maken'),
-    el('button', {
-      type: 'button', class: 'knop knop-breed',
-      onclick: async () => {
-        const uitkomst = await deelBestand(csvBestand)
-        if (uitkomst !== 'geannuleerd') toonMelding('CSV bewaard')
-      }
-    }, 'Dagboek als CSV (voor Excel)')
+    el('h3', {}, 'Exporteren als CSV (voor Excel)'),
+    deelKnop(csvBestanden.dagboek, 'Dagboek'),
+    deelKnop(csvBestanden.gewicht, 'Gewicht'),
+    deelKnop(csvBestanden.beweging, 'Beweging')
   )
 }
 
@@ -165,7 +177,8 @@ function sectieOver(nevo) {
     el('h2', {}, 'Over deze app'),
     el('p', {}, `Voedingsdagboek, versie ${APP_VERSIE}. Gratis, zonder advertenties, zonder account.`),
     el('p', {}, 'Al je gegevens blijven op dit toestel. Er gaat niets naar een server. ',
-      'Enige uitzondering (vanaf een volgende versie): bij het scannen van een barcode wordt alleen het barcodenummer opgezocht bij Open Food Facts.'),
+      'Enige uitzondering: bij het scannen van een nieuwe barcode wordt alleen het barcodenummer opgezocht bij Open Food Facts. ',
+      'Een gevonden product wordt op je toestel bewaard; daarna werkt het ook zonder internet.'),
     el('h3', {}, 'Bronnen'),
     nevo
       ? el('p', {},
@@ -175,6 +188,12 @@ function sectieOver(nevo) {
           'Eigen producten en eigen porties zijn aanvullingen van jezelf, geen NEVO-gegevens. ',
           'Het RIVM is niet aansprakelijk voor fouten in of verkeerd gebruik van de gegevens.')
       : el('p', {}, 'De NEVO-tabel is nog niet toegevoegd.'),
+    el('p', {},
+      'Gescande producten: gegevens van ',
+      el('a', { href: 'https://world.openfoodfacts.org/', rel: 'noopener' }, 'Open Food Facts'),
+      ', beschikbaar onder de ',
+      el('a', { href: 'https://opendatacommons.org/licenses/odbl/1-0/', rel: 'noopener' }, 'Open Database License (ODbL)'),
+      '. Ingevuld door vrijwilligers; controleer bij twijfel de verpakking.'),
     el('p', {}, 'Broncode: ', el('a', { href: 'https://github.com/Callastri/phoenix', rel: 'noopener' }, 'github.com/Callastri/phoenix'))
   )
 }
@@ -182,12 +201,18 @@ function sectieOver(nevo) {
 // Tekent het hele scherm.
 export async function toonMeer(container) {
   const herteken = () => toonMeer(container)
-  const [backupBestand, csvBestand, laatsteBackup, status, nevo] = await Promise.all([
-    maakBackupBestand(), maakCsvBestand(), leesInstelling('laatsteBackup'), statusPermanenteOpslag(), laadNevo()
+  const [backupBestand, dagboekCsv, gewichtCsv, bewegingCsv, laatsteBackup, status, nevo] = await Promise.all([
+    maakBackupBestand(), maakCsvBestand('dagboek'), maakCsvBestand('gewicht'), maakCsvBestand('beweging'),
+    leesInstelling('laatsteBackup'), statusPermanenteOpslag(), laadNevo()
   ])
   container.replaceChildren(
     el('h1', { class: 'schermtitel' }, 'Meer'),
-    sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken),
+    el('section', { class: 'kaart' },
+      el('h2', {}, 'Doelen'),
+      el('p', { class: 'hint' }, 'Je dagdoel voor kcal en macro\'s, hulp bij het berekenen, en of beweging meetelt.'),
+      el('a', { class: 'knop knop-hoofd knop-breed', href: '#/doelen' }, 'Doelen instellen')
+    ),
+    sectieBackup(backupBestand, { dagboek: dagboekCsv, gewicht: gewichtCsv, beweging: bewegingCsv }, laatsteBackup, herteken),
     sectieTerugzetten(herteken),
     sectieOpslag(status, herteken),
     sectieWissen(herteken),

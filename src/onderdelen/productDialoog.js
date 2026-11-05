@@ -7,7 +7,7 @@ import { naarVeld, toonFouten } from './waardenVelden.js'
 import { openNevoPortieDialoog } from './nevoPortieDialoog.js'
 import { MAALTIJDEN } from '../gegevens/maaltijden.js'
 import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
-import { leesGetal, toonGetal } from '../berekeningen/getallen.js'
+import { leesGetal, toonGetal, toonPortie } from '../berekeningen/getallen.js'
 import { basisHoeveelheid, waardenVoorHoeveelheid } from '../berekeningen/voeding.js'
 import { voegRegelToe, werkRegelBij, verwijderRegel } from '../opslag/dagboek.js'
 import { isFavoriet, zetFavoriet } from '../opslag/producten.js'
@@ -16,7 +16,7 @@ import { bronTekst, haalProduct } from '../diensten/producten.js'
 
 // Tekst voor een portie in de keuzelijst, bijvoorbeeld "snee (35 g)".
 function portieTekst(portie, eenheid) {
-  return `${portie.naam} (${toonGetal(portie.gram, portie.gram % 1 ? 1 : 0)} ${eenheid})`
+  return toonPortie(portie.naam, portie.gram, eenheid)
 }
 
 // Opent de dialoog.
@@ -160,7 +160,7 @@ export function openProductDialoog({ product, datum, maaltijd, regel = null, voo
       acties.push(el('button', {
         type: 'button', class: 'knop knop-klein',
         onclick: () => { uitkomst = { bewerk: product }; sluit() }
-      }, product.bron === 'nevo' ? 'Eigen versie maken' : 'Product bewerken'))
+      }, product.bron === 'nevo' ? 'Eigen versie maken' : 'Product aanpassen'))
     }
 
     const formulier = el('form', { onsubmit: opslaan, novalidate: true },
@@ -172,6 +172,9 @@ export function openProductDialoog({ product, datum, maaltijd, regel = null, voo
       ),
       el('div', { class: 'veld' }, el('label', { for: 'veld-maaltijd' }, 'Maaltijd'), maaltijdVeld),
       tabel,
+      product.bron === 'off'
+        ? el('p', { class: 'hint' }, 'Gegevens van Open Food Facts, ingevuld door vrijwilligers. Klopt iets niet met de verpakking? Tik op "Product aanpassen".')
+        : null,
       foutVak,
       el('div', { class: 'knoppen' },
         bestaand ? el('button', { type: 'button', class: 'knop knop-gevaar', onclick: verwijder }, 'Verwijderen') : null,

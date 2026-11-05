@@ -10,10 +10,14 @@ import { MAALTIJDEN, MAALTIJD_SLEUTELS } from '../gegevens/maaltijden.js'
 import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
 import { BACKUP_HERINNERING_DAGEN } from '../gegevens/drempels.js'
 import { vandaag, verschuifDag, toonDatum, isGeldigeDatum } from '../berekeningen/datum.js'
-import { toonGetal } from '../berekeningen/getallen.js'
+import { toonGetal, toonKortGetal } from '../berekeningen/getallen.js'
 import { totaalVanRegels, totaalPerMaaltijd, waardenVanRegel } from '../berekeningen/voeding.js'
 import { moetBackupHerinneren } from '../berekeningen/herinnering.js'
 import { regelsVanDag, aantalRegels, kopieerMaaltijd } from '../opslag/dagboek.js'
+import { activiteitenVanDag } from '../opslag/beweging.js'
+import { alleGewichten } from '../opslag/gewicht.js'
+import { totaalBewegingKcal } from '../berekeningen/beweging.js'
+import { dagBudget } from '../berekeningen/doelen.js'
 import { leesInstelling } from '../opslag/instellingen.js'
 import { isIos, isGeinstalleerd } from '../diensten/toestel.js'
 import { toonInstallUitleg } from './installeren.js'
@@ -55,7 +59,7 @@ async function maakMeldingen() {
   const herinneren = moetBackupHerinneren({
     laatsteBackup: await leesInstelling('laatsteBackup'),
     nu: new Date(),
-    heeftGegevens: (await aantalRegels()) > 0,
+    heeftGegevens: (await aantalRegels()) > 0 || (await alleGewichten()).length > 0 || (await activiteitenVanDag(vandaag())).length > 0,
     maxDagen: BACKUP_HERINNERING_DAGEN
   })
   if (herinneren) {
@@ -68,28 +72,53 @@ async function maakMeldingen() {
 }
 
 // Het blok met de dagtotalen.
-function maakTotalen(totaal) {
+// In:  totaal (zie berekeningen/voeding.js), doelen ({ kcal, eiwit, ... } of {}),
+//      budget ({ budget, bewegingErbij } uit berekeningen/doelen.js)
+function maakTotalen(totaal, doelen, budget) {
   const [energie, ...rest] = VOEDINGSSTOFFEN
   const onvolledig = VOEDINGSSTOFFEN.some((s) => totaal[s.sleutel].onvolledig)
+  const gegeten = totaal[energie.sleutel].totaal ?? 0
+
+  // Kcal tegenover het budget: "Nog 1550 kcal" of "250 kcal boven je doel" (tekst, niet alleen kleur).
+  let budgetBlok = el('p', { class: 'hint' }, el('a', { href: '#/doelen' }, 'Stel een dagdoel in'), ' om je totaal tegenover je doel te zien.')
+  if (budget.budget !== null) {
+    const verschil = budget.budget - gegeten
+    const balk = el('span', {})
+    balk.style.width = `${Math.min(100, (gegeten / budget.budget) * 100)}%`
+    budgetBlok = el('div', {},
+      el('div', { class: 'progressie', role: 'presentation' }, balk),
+      el('p', { class: 'budget-tekst' },
+        verschil >= 0 ? `Nog ${toonGetal(verschil)} kcal` : `${toonGetal(-verschil)} kcal boven je doel`,
+        el('span', { class: 'zacht' },
+          ` · doel ${toonGetal(doelen.kcal)}`,
+          budget.bewegingErbij > 0 ? ` + beweging ${toonGetal(budget.bewegingErbij)}` : '')
+      )
+    )
+  }
+
   return el('section', { class: 'kaart totalen', 'aria-label': 'Dagtotaal' },
     el('div', { class: 'totaal-kcal' },
-      el('span', { class: 'groot' }, toonTotaal(totaal[energie.sleutel], 0, 'kcal'))
+      el('span', { class: 'groot' }, toonTotaal(totaal[energie.sleutel], 0, 'kcal')),
+      budget.budget !== null ? el('span', { class: 'zacht' }, ` / ${toonGetal(budget.budget)}`) : null
     ),
+    budgetBlok,
     el('dl', { class: 'totaal-raster' },
       rest.map((stof) => el('div', {},
         el('dt', {}, stof.naam),
-        el('dd', {}, toonTotaal(totaal[stof.sleutel], stof.decimalen, stof.eenheid))
+        el('dd', {}, toonTotaal(totaal[stof.sleutel], stof.decimalen, stof.eenheid),
+          doelen[stof.sleutel] ? el('span', { class: 'zacht' }, ` / ${toonGetal(doelen[stof.sleutel], stof.decimalen === 2 ? 1 : 0)}`) : null)
       ))
     ),
     onvolledig ? el('p', { class: 'hint' }, '* Niet alle waarden zijn bekend; het echte totaal kan hoger zijn.') : null
   )
 }
 
-// Toont de hoeveelheid van een regel, bijvoorbeeld "50 g" of "2 × snee (70 g)".
+// Toont de hoeveelheid van een regel, bijvoorbeeld "50 g" of "2 × snee · 70 g".
 function toonHoeveelheid(regel) {
-  const getal = (n) => toonGetal(n, n % 1 ? 1 : 0)
-  if (regel.eenheid === 'portie') return `${getal(regel.hoeveelheid)} × ${regel.portieNaam} (${getal(regel.gram)} ${regel.basisEenheid})`
-  return `${getal(regel.hoeveelheid)} ${regel.eenheid}`
+  if (regel.eenheid === 'portie') {
+    return `${toonKortGetal(regel.hoeveelheid)} × ${regel.portieNaam} · ${toonKortGetal(regel.gram)} ${regel.basisEenheid}`
+  }
+  return `${toonKortGetal(regel.hoeveelheid)} ${regel.eenheid}`
 }
 
 // Opent de juiste dialoog om een regel aan te passen.
@@ -155,10 +184,22 @@ export async function toonDagboek(container, [datumUitAdres] = []) {
   const perMaaltijd = totaalPerMaaltijd(regels, MAALTIJD_SLEUTELS)
   const meldingen = await maakMeldingen()
 
+  // Doel en (als die instelling aan staat) de geschatte kcal van beweging van deze dag.
+  const doelen = await leesInstelling('doelen', {})
+  const optellen = await leesInstelling('bewegingOptellen', false)
+  const activiteiten = await activiteitenVanDag(datum)
+  const beweging = activiteiten.length ? totaalBewegingKcal(activiteiten, await alleGewichten()) : { totaal: 0 }
+  const budget = dagBudget(doelen.kcal ?? null, Math.round(beweging.totaal), optellen)
+
   const delen = [
     maakDatumBalk(datum),
     ...meldingen,
-    maakTotalen(totaalVanRegels(regels)),
+    maakTotalen(totaalVanRegels(regels), doelen, budget),
+    activiteiten.length
+      ? el('p', { class: 'hint beweging-regel' },
+          el('a', { href: '#/beweging' }, `Beweging: ${activiteiten.reduce((s, a) => s + a.minuten, 0)} min`),
+          beweging.totaal > 0 ? ` · ± ${toonGetal(beweging.totaal)} kcal (schatting${optellen ? ', telt mee' : ', telt niet mee'})` : '')
+      : null,
     ...MAALTIJDEN.map((m) => maakMaaltijd(
       m, regels.filter((r) => r.maaltijd === m.sleutel), perMaaltijd[m.sleutel], datum,
       { datum: vorigeDatum, aantal: regelsVorigeDag.filter((r) => r.maaltijd === m.sleutel).length },

@@ -6,16 +6,23 @@ import { el } from './html.js'
 import { openDialoog, bevestig } from './dialoog.js'
 import { maakWaardenVelden, naarVeld, toonFouten } from './waardenVelden.js'
 import { leesGetal } from '../berekeningen/getallen.js'
+import { schoneBarcode, isGeldigeBarcode } from '../berekeningen/barcode.js'
 import { bewaarEigenProduct, verwijderEigenProduct } from '../opslag/producten.js'
 import { OngeldigeInvoer } from '../opslag/fouten.js'
 
-// In:  { product }  — een bestaand eigen product (bewerken), of
-//      { basis }    — een NEVO-product als startpunt, of niets (nieuw)
+// In:  { product }  — een bestaand eigen of gescand product (aanpassen), of
+//      { basis }    — een NEVO-product als startpunt, of
+//      { barcode }  — nieuw product met deze barcode (niet gevonden bij het scannen), of niets
 // Uit: Promise met { id } (opgeslagen), 'verwijderd' of null
-export function openEigenProductDialoog({ product = null, basis = null } = {}) {
+export function openEigenProductDialoog({ product = null, basis = null, barcode = null } = {}) {
   return new Promise((klaar) => {
     let uitkomst = null
     const bron = product ?? basis
+    const gescand = product?.bron === 'off'
+    const barcodeVeld = el('input', {
+      id: 'product-barcode', type: 'text', inputmode: 'numeric', autocomplete: 'off',
+      value: product?.barcode ?? barcode ?? '', placeholder: 'optioneel', readonly: gescand
+    })
     const naamVeld = el('input', {
       id: 'product-naam', type: 'text', autocomplete: 'off', maxlength: '120',
       value: product ? product.naam : basis ? `${basis.naam} (eigen)` : ''
@@ -48,9 +55,19 @@ export function openEigenProductDialoog({ product = null, basis = null } = {}) {
 
     async function opslaan(gebeurtenis) {
       gebeurtenis.preventDefault()
+      const code = schoneBarcode(barcodeVeld.value)
+      if (code !== '' && !isGeldigeBarcode(code)) {
+        toonFouten(foutVak, ['Ongeldige barcode. Controleer de cijfers, of laat het veld leeg.'])
+        return
+      }
       try {
         const id = await bewaarEigenProduct({
           id: product ? product.ref.id : undefined,
+          // Een gescand product blijft "Open Food Facts", maar met de markering "door jou aangepast".
+          bron: gescand ? 'off' : 'eigen',
+          merk: gescand ? product.merk : undefined,
+          aangepast: gescand,
+          barcode: code || null,
           naam: naamVeld.value,
           eenheid: eenheidVeld.value,
           waarden: waarden.lees(),
@@ -84,6 +101,8 @@ export function openEigenProductDialoog({ product = null, basis = null } = {}) {
       basis ? el('p', { class: 'hint' }, 'Je maakt een eigen product op basis van NEVO. Het NEVO-product zelf blijft ongewijzigd.') : null,
       el('div', { class: 'veld' }, el('label', { for: 'product-naam' }, 'Naam'), naamVeld),
       el('div', { class: 'veld' }, el('label', { for: 'product-eenheid' }, 'Meten in'), eenheidVeld),
+      el('div', { class: 'veld' }, el('label', { for: 'product-barcode' }, 'Barcode'), barcodeVeld),
+      gescand ? el('p', { class: 'hint' }, 'Je past alleen je eigen kopie aan; Open Food Facts zelf verandert niet.') : null,
       waarden.element,
       el('h3', {}, 'Porties (optioneel)'),
       el('p', { class: 'hint' }, 'Bijvoorbeeld "stuk" = 120 gram. Dan kun je straks "2 stuks" kiezen.'),
@@ -96,7 +115,7 @@ export function openEigenProductDialoog({ product = null, basis = null } = {}) {
         el('button', { type: 'submit', class: 'knop knop-hoofd' }, 'Opslaan')
       )
     )
-    const titel = product ? 'Eigen product bewerken' : 'Nieuw eigen product'
+    const titel = gescand ? 'Product aanpassen' : product ? 'Eigen product bewerken' : 'Nieuw eigen product'
     const { sluit } = openDialoog(titel, formulier, () => klaar(uitkomst))
     if (!product) naamVeld.focus()
   })

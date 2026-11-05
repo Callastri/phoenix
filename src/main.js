@@ -12,6 +12,9 @@ import './stijl/schermen.css'
 import { toonDagboek } from './schermen/dagboek.js'
 import { toonMeer } from './schermen/meer.js'
 import { toonToevoegen } from './schermen/toevoegen.js'
+import { toonGewicht } from './schermen/gewicht.js'
+import { toonBeweging } from './schermen/beweging.js'
+import { toonDoelen } from './schermen/doelen.js'
 import { binnenkort } from './schermen/binnenkort.js'
 import { toonInstallUitlegBijEersteGebruik } from './schermen/installeren.js'
 import { vraagPermanenteOpslag } from './diensten/toestel.js'
@@ -20,8 +23,9 @@ import { vraagPermanenteOpslag } from './diensten/toestel.js'
 const SCHERMEN = {
   dagboek: toonDagboek,
   toevoegen: toonToevoegen,
-  gewicht: binnenkort('Gewicht', 4),
-  beweging: binnenkort('Beweging', 4),
+  gewicht: toonGewicht,
+  beweging: toonBeweging,
+  doelen: toonDoelen,
   overzicht: binnenkort('Overzicht', 5),
   meer: toonMeer
 }
@@ -32,8 +36,8 @@ const inhoud = document.getElementById('inhoud')
 async function toonScherm() {
   const [naam, ...rest] = location.hash.replace(/^#\/?/, '').split('/')
   const scherm = SCHERMEN[naam] ? naam : 'dagboek'
-  // "Toevoegen" hoort bij het dagboek in de navigatie onderaan.
-  const tab = scherm === 'toevoegen' ? 'dagboek' : scherm
+  // "Toevoegen" hoort bij het dagboek en "Doelen" bij Meer in de navigatie onderaan.
+  const tab = { toevoegen: 'dagboek', doelen: 'meer' }[scherm] ?? scherm
   for (const link of document.querySelectorAll('.navigatie a')) {
     if (link.dataset.scherm === tab) link.setAttribute('aria-current', 'page')
     else link.removeAttribute('aria-current')

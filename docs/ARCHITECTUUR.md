@@ -8,7 +8,7 @@
 | Opslag | **Dexie** (bovenop IndexedDB) | IndexedDB is de enige ruime, blijvende opslag in de browser. Dexie maakt het leesbaar en heeft ingebouwde schemaversies voor migraties. |
 | Tests | **Vitest** + `fake-indexeddb` | Werkt direct met Vite; database-tests draaien zonder browser. |
 | Offline | **vite-plugin-pwa** | Maakt service worker en manifest; alles wordt gebundeld, niets van een CDN. |
-| Barcode | **`barcode-detector`-polyfill (ZXing in WebAssembly)** | Safari heeft geen ingebouwde barcodelezer; deze polyfill gebruikt ZXing en werkt op iPhone. Op Android gebruikt hij de ingebouwde lezer. Het WebAssembly-bestand wordt **zelf meegebundeld** (standaard haalt de library het van een CDN — dat zetten we uit). Definitieve keuze getest in fase 3. |
+| Barcode | **`barcode-detector`-polyfill (ZXing in WebAssembly)** | Safari heeft geen ingebouwde barcodelezer; deze polyfill gebruikt ZXing en werkt op iPhone. Op Android gebruikt hij de ingebouwde lezer. Het WebAssembly-bestand (±950 kB) wordt **zelf meegebundeld** en pas geladen bij het scannen (standaard haalt de library het van een CDN — dat staat uit). Getest in fase 3 met een nep-camera. Vereist `'wasm-unsafe-eval'` in de CSP (alleen WebAssembly, geen gewone `eval`). |
 | Grafieken | Zelfgeschreven SVG | Geen externe bibliotheek nodig voor een lijn- en staafgrafiek. |
 | Hosting | **GitHub Pages** via GitHub Actions | Gratis, HTTPS (nodig voor camera), publiceert automatisch na elke goedgekeurde pull request. Adres: `https://callastri.github.io/phoenix/` |
 
@@ -72,13 +72,13 @@ Een ontbrekende waarde is `null`, nooit 0.
 ### Tabellen
 | Tabel | Velden | Opmerking |
 |---|---|---|
-| `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?`, `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
+| `producten` | `id`, `bron` ('eigen' \| 'off'), `naam`, `merk?`, `barcode?` (verplicht bij 'off'), `aangepast?` (gescand product door jou gewijzigd), `gebaseerdOpNevo?`, `eenheid` ('g' \| 'ml'), `waarden`, `porties` [{`naam`, `gram`}], `bijgewerkt` | NEVO zelf staat NIET in de database maar in `nevo.json` (alleen-lezen). Pas je een NEVO-product aan, dan komt er een eigen product in deze tabel (zie NEVO-gegevens). |
 | `porties` | `id`, `nevoCode`, `naam`, `gram` | Eigen porties bij NEVO-producten (bv. "1 snee" = 35 g). |
 | `recepten` | `id`, `naam`, `aantalPorties`, `ingredienten` [{`productRef`, `hoeveelheid`, `eenheid`}], `bijgewerkt` | Waarden per portie worden berekend, niet opgeslagen. |
 | `dagboek` | `id`, `datum` ('JJJJ-MM-DD'), `maaltijd` ('ontbijt' \| 'middag' \| 'avond' \| 'tussendoor'), `productRef` {`soort`, `id`} of `null` (handmatige invoer), `naam`, `waarden` (momentopname), `hoeveelheid`, `eenheid` ('g' \| 'ml' \| 'portie'), bij een portie ook `portieNaam`, `portieGram` en `basisEenheid` ('g' \| 'ml'), `gram` (= hoeveelheid in g/ml), `aangemaakt` | Momentopname: zie open vraag 2 in EISEN.md. "Recent" wordt hieruit afgeleid. |
 | `gewicht` | `id`, `datum`, `kg` | Eén meting per datum; nieuwe invoer op dezelfde datum vervangt. |
-| `bewegingssoorten` | `id`, `naam`, `met`, `metAfstand` (ja/nee), `eigen` | Startlijst uit `gegevens/bewegingssoorten.js`; zelf uitbreidbaar. |
-| `beweging` | `id`, `datum`, `soortId`, `soortNaam`, `met` (momentopname), `minuten`, `afstandKm?`, `notitie?` | kcal wordt berekend met het gewicht dat het dichtst bij die datum ligt. |
+| `bewegingssoorten` | `id`, `naam`, `met` | Alleen je **eigen** soorten. De standaardsoorten staan in `gegevens/bewegingssoorten.js` (niet in de database). |
+| `beweging` | `id`, `datum`, `soortId` ('std:wandelen-rustig' of 'eigen:3'), `soortNaam`, `met` (momentopname), `minuten`, `afstandKm?`, `notitie?` | kcal wordt berekend met het gewicht dat het dichtst bij die datum ligt. |
 | `favorieten` | `sleutel` (bv. 'nevo:123' of 'eigen:5') | Sinds schemaversie 2. Eén tabel voor favorieten van NEVO- én eigen producten (NEVO-producten staan niet in de database). |
 | `instellingen` | sleutel/waarde: `profiel` (lengte, geboortejaar, formule man/vrouw, activiteitsniveau), `doelen`, `bewegingOptellen` (standaard `false`), `laatsteBackup`, `installUitlegGezien` | |
 

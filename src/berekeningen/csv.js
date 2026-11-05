@@ -6,6 +6,8 @@ import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
 import { maaltijdNaam } from '../gegevens/maaltijden.js'
 import { waardenVanRegel } from './voeding.js'
 import { toonGetal } from './getallen.js'
+import { zevenDaagsGemiddelde, gewichtOpDatum } from './gewicht.js'
+import { kcalVoorActiviteit } from './beweging.js'
 
 // Maakt één veld veilig voor CSV.
 // - Velden met ; " of een nieuwe regel komen tussen aanhalingstekens.
@@ -37,5 +39,30 @@ export function maakDagboekCsv(regels) {
       ...VOEDINGSSTOFFEN.map((s) => (waarden[s.sleutel] === null ? '' : toonGetal(waarden[s.sleutel], s.decimalen)))
     ]
   })
+  return [kop, ...rijen].map((rij) => rij.map(csvVeld).join(';')).join('\r\n') + '\r\n'
+}
+
+// Maakt een CSV-tekst van gewichtsmetingen, met het 7-daags gemiddelde.
+export function maakGewichtCsv(metingen) {
+  const kop = ['Datum', 'Gewicht (kg)', 'Gemiddelde 7 dagen (kg)']
+  const rijen = [...metingen]
+    .sort((a, b) => a.datum.localeCompare(b.datum))
+    .map((m) => [m.datum, toonGetal(m.kg, 1), toonGetal(zevenDaagsGemiddelde(metingen, m.datum), 1)])
+  return [kop, ...rijen].map((rij) => rij.map(csvVeld).join(';')).join('\r\n') + '\r\n'
+}
+
+// Maakt een CSV-tekst van activiteiten, met de geschatte kcal (leeg als het gewicht onbekend is).
+export function maakBewegingCsv(activiteiten, metingen) {
+  const kop = ['Datum', 'Soort', 'Minuten', 'Afstand (km)', 'MET', 'Geschatte kcal', 'Notitie']
+  const rijen = [...activiteiten]
+    .sort((a, b) => a.datum.localeCompare(b.datum) || a.id - b.id)
+    .map((a) => {
+      const kcal = kcalVoorActiviteit(a.met, gewichtOpDatum(metingen, a.datum), a.minuten)
+      return [
+        a.datum, a.soortNaam, toonGetal(a.minuten, 0),
+        a.afstandKm === undefined || a.afstandKm === null ? '' : toonGetal(a.afstandKm, 1),
+        toonGetal(a.met, 1), kcal === null ? '' : toonGetal(kcal, 0), a.notitie ?? ''
+      ]
+    })
   return [kop, ...rijen].map((rij) => rij.map(csvVeld).join(';')).join('\r\n') + '\r\n'
 }

@@ -5,9 +5,21 @@ geen tracking. Je gegevens blijven op je eigen toestel.
 
 **De app:** https://callastri.github.io/phoenix/
 
-**Status:** fase 2 — dagboek, zoeken, recent, favorieten, eigen producten en
-porties, maaltijd kopiëren, back-up. Barcodes, doelen, gewicht en beweging komen
-later (zie [docs/EISEN.md](docs/EISEN.md)).
+**Status:** fase 4 — dagboek, zoeken (NEVO), barcode scannen (Open Food Facts),
+recent, favorieten, eigen producten en porties, maaltijd kopiëren, doelen,
+gewicht, beweging, back-up. Weekoverzicht, recepten en offline werken komen in
+fase 5 (zie [docs/EISEN.md](docs/EISEN.md)).
+
+## Barcode scannen
+
+Tik bij **Toevoegen** op **Scan**. De eerste keer vraagt je telefoon om toegang
+tot de camera; kies **Sta toe**. Op iPhone kan de app dit vaker vragen als je hem
+vanaf het beginscherm opent; dat is een beperking van iOS.
+
+- Alleen het barcodenummer wordt opgezocht bij Open Food Facts.
+- Een gevonden product wordt op je telefoon bewaard; daarna werkt het ook offline.
+- Niet gevonden? Maak dan zelf een product met die barcode (waarden van de verpakking).
+- Lukt de camera niet? Typ het nummer onder de streepjes in.
 
 ---
 
@@ -79,6 +91,10 @@ binnen een paar minuten online.
 | Namen van de maaltijden op het scherm | `src/gegevens/maaltijden.js` (alleen `naam`, niet `sleutel`) |
 | Namen van voedingsstoffen op het scherm | `src/gegevens/voedingsstoffen.js` (alleen `naam`) |
 | Na hoeveel dagen de back-upherinnering komt | `src/gegevens/drempels.js` |
+| Soorten beweging en hun MET-waarden | `src/gegevens/bewegingssoorten.js` |
+| Activiteitsniveaus en tempo's van de doelhulp | `src/gegevens/activiteitsniveaus.js` |
+| Grens voor de waarschuwing "doel te laag" (1200 kcal) | `src/gegevens/drempels.js` |
+| Kleuren van de grafiek | `src/stijl/thema.css` (`--serie-1`, `--serie-2`) |
 | Grenzen bij het controleren van invoer | `src/gegevens/drempels.js` |
 | Teksten van het dagboek | `src/schermen/dagboek.js` |
 | Teksten van het scherm Meer | `src/schermen/meer.js` |
