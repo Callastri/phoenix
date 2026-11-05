@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { nevoNaarProducten, NEVO_KOLOMMEN } from '../src/berekeningen/nevo.js'
-import { basisHoeveelheid, zoutUitNatrium, waardenVoorHoeveelheid } from '../src/berekeningen/voeding.js'
+import { basisHoeveelheid, zoutUitNatrium, waardenVoorHoeveelheid, hoeveelheidNaWissel } from '../src/berekeningen/voeding.js'
 import { controleerDagboekregel, controleerFavoriet, controleerProductRef } from '../src/berekeningen/controle.js'
 import { regel } from './voorbeelden.js'
 
@@ -52,6 +52,14 @@ describe('porties', () => {
     const w = waardenVoorHoeveelheid({ kcal: 250, eiwit: null }, basisHoeveelheid(2, 'portie', 35))
     expect(w.kcal).toBe(175)
     expect(w.eiwit).toBeNull()
+  })
+  it('wisselen van eenheid: geen 100 × 35 g (bug gemeld door eigenaar)', () => {
+    expect(hoeveelheidNaWissel(100, null, true)).toBe(1)     // 100 g → 1 snee
+    expect(hoeveelheidNaWissel(2, 35, false)).toBe(70)       // 2 sneetjes van 35 g → 70 g
+    expect(hoeveelheidNaWissel(3, 33.33, false)).toBe(100)  // afronden op 0,1 (99,99 → 100)
+    expect(hoeveelheidNaWissel(3, 35, true)).toBe(1)         // andere portie → 1
+    expect(hoeveelheidNaWissel(80, null, false)).toBe(80)    // gram blijft gram
+    expect(basisHoeveelheid(hoeveelheidNaWissel(100, null, true), 'portie', 35)).toBe(35)
   })
   it('controle van een portieregel', () => {
     const goed = regel({ eenheid: 'portie', hoeveelheid: 2, portieNaam: 'snee', portieGram: 35, basisEenheid: 'g', gram: 70 })

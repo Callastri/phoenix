@@ -8,7 +8,7 @@ import { openNevoPortieDialoog } from './nevoPortieDialoog.js'
 import { MAALTIJDEN } from '../gegevens/maaltijden.js'
 import { VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
 import { leesGetal, toonGetal, toonPortie } from '../berekeningen/getallen.js'
-import { basisHoeveelheid, waardenVoorHoeveelheid } from '../berekeningen/voeding.js'
+import { basisHoeveelheid, waardenVoorHoeveelheid, hoeveelheidNaWissel } from '../berekeningen/voeding.js'
 import { voegRegelToe, werkRegelBij, verwijderRegel } from '../opslag/dagboek.js'
 import { isFavoriet, zetFavoriet } from '../opslag/producten.js'
 import { OngeldigeInvoer } from '../opslag/fouten.js'
@@ -149,9 +149,17 @@ export function openProductDialoog({ product, datum, maaltijd, regel = null, voo
         type: 'button', class: 'knop knop-klein',
         onclick: async () => {
           await openNevoPortieDialoog(product)
+          const aantalVoor = porties.length
           const vernieuwd = await haalProduct(product.ref)
           if (vernieuwd) porties = vernieuwd.porties
-          vulEenheden('basis')
+          // Is er een portie bijgekomen, kies die dan meteen (1 portie).
+          if (porties.length > aantalVoor) {
+            vulEenheden(`portie:${porties.length - 1}`)
+            hoeveelheidVeld.value = '1'
+          } else {
+            vulEenheden('basis')
+          }
+          vorigeKeuze = eenheidVeld.value
           werkTabelBij()
         }
       }, '+ Eigen portie'))
@@ -182,6 +190,16 @@ export function openProductDialoog({ product, datum, maaltijd, regel = null, voo
         el('button', { type: 'submit', class: 'knop knop-hoofd' }, bestaand ? 'Opslaan' : 'Toevoegen')
       )
     )
+    // Wissel je van eenheid, pas dan de hoeveelheid aan (zie hoeveelheidNaWissel).
+    let vorigeKeuze = eenheidVeld.value
+    eenheidVeld.addEventListener('change', () => {
+      const nieuweKeuze = eenheidVeld.value
+      if (nieuweKeuze === vorigeKeuze) return
+      const oudePortie = vorigeKeuze === 'basis' ? null : porties[Number(vorigeKeuze.split(':')[1])]
+      const nieuw = hoeveelheidNaWissel(leesGetal(hoeveelheidVeld.value), oudePortie?.gram ?? null, nieuweKeuze !== 'basis')
+      if (nieuw !== null && !Number.isNaN(nieuw)) hoeveelheidVeld.value = naarVeld(nieuw)
+      vorigeKeuze = nieuweKeuze
+    })
     formulier.addEventListener('input', werkTabelBij)
     formulier.addEventListener('change', werkTabelBij)
     werkTabelBij()
