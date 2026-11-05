@@ -56,15 +56,17 @@ van de eigenaar. Pas daarna start de volgende fase.
 - [x] Barcodecontrole (controlecijfer) tegen leesfouten
 
 ## Fase 4 — Doelen, gewicht, beweging
-- [ ] Dagdoel kcal en macro's zelf instellen (gram of % van kcal)
-- [ ] Optionele hulp: Mifflin-St Jeor × activiteitsniveau, met tempo
-- [ ] Duidelijke waarschuwing bij onrealistisch laag doel (zie open vraag 4)
-- [ ] Gewicht: invoeren (datum + kg), lijst, grafiek, 7-daags gemiddelde
-- [ ] Beweging: soort (uit lijst), duur, optioneel afstand en notitie
-- [ ] Soorten beweging + MET-waarden als gegevenslijst, uitbreidbaar
-- [ ] Geschatte kcal = MET × gewicht (kg) × uren
-- [ ] Instelling "beweging optellen bij dagbudget" (standaard UIT, met uitleg)
-- [ ] Tests: BMR, TDEE, doelwaarschuwing, MET, 7-daags gemiddelde
+- [x] Dagdoel kcal en macro's zelf instellen (gram of % van kcal)
+- [x] Optionele hulp: Mifflin-St Jeor × activiteitsniveau, met tempo
+- [x] Duidelijke waarschuwing bij onrealistisch laag doel (zie open vraag 4)
+- [x] Gewicht: invoeren (datum + kg), lijst, grafiek, 7-daags gemiddelde
+- [x] Beweging: soort (uit lijst), duur, optioneel afstand en notitie
+- [x] Soorten beweging + MET-waarden als gegevenslijst, uitbreidbaar (22 standaard + eigen soorten)
+      *MET-waarden overgenomen uit het Compendium 2011, nog niet nagekeken bij de bron (site geblokkeerd)*
+- [x] Geschatte kcal = MET × gewicht (kg) × uren
+- [x] Instelling "beweging optellen bij dagbudget" (standaard UIT, met uitleg)
+- [x] Tests: BMR, TDEE, doelwaarschuwing, MET, 7-daags gemiddelde
+- [x] Doel tegenover totaal in het dagboek; CSV-export van gewicht en beweging
 
 ## Fase 5 — Overzicht, recepten, offline, afwerking
 - [ ] Weekoverzicht: gemiddelde inname, gewichtstrend, beweging

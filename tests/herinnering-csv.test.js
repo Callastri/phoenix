@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { moetBackupHerinneren, tekstLaatsteBackup } from '../src/berekeningen/herinnering.js'
-import { maakDagboekCsv, csvVeld } from '../src/berekeningen/csv.js'
+import { maakDagboekCsv, csvVeld, maakGewichtCsv, maakBewegingCsv } from '../src/berekeningen/csv.js'
 import { regel, waarden } from './voorbeelden.js'
 
 describe('back-upherinnering', () => {
@@ -41,5 +41,23 @@ describe('CSV', () => {
     expect(rijen[1]).toBe('2026-10-28;Ontbijt;Havermout;50,0;g;50;5,0;10,0;2,5;1,0;4,0;0,25')
     // onbekend zout blijft leeg
     expect(rijen[2]).toBe('2026-10-29;Ontbijt;"Kaas; jong";30,0;g;30;3,0;6,0;1,5;0,6;2,4;')
+  })
+})
+
+describe('CSV gewicht en beweging', () => {
+  it('gewicht met 7-daags gemiddelde', () => {
+    const csv = maakGewichtCsv([{ datum: '2026-11-02', kg: 78 }, { datum: '2026-11-01', kg: 79 }])
+    expect(csv.trim().split('\r\n')).toEqual([
+      'Datum;Gewicht (kg);Gemiddelde 7 dagen (kg)',
+      '2026-11-01;79,0;79,0',
+      '2026-11-02;78,0;78,5'
+    ])
+  })
+  it('beweging met geschatte kcal (leeg zonder gewicht)', () => {
+    const activiteiten = [{ id: 1, datum: '2026-11-01', soortNaam: 'Wandelen', met: 3.5, minuten: 60, afstandKm: 4.5, notitie: 'hond; park' }]
+    expect(maakBewegingCsv(activiteiten, [{ datum: '2026-11-01', kg: 70 }]).trim().split('\r\n')[1])
+      .toBe('2026-11-01;Wandelen;60;4,5;3,5;245;"hond; park"')
+    expect(maakBewegingCsv(activiteiten, []).trim().split('\r\n')[1])
+      .toBe('2026-11-01;Wandelen;60;4,5;3,5;;"hond; park"')
   })
 })

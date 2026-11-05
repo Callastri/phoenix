@@ -10,7 +10,7 @@ import { db } from './db.js'
 import { VERSIES, HUIDIGE_VERSIE, TABELNAMEN } from './schema.js'
 import { migreerGegevens } from './migraties.js'
 import { controleerBackupVorm, controleerBackupInhoud } from '../berekeningen/controle.js'
-import { maakDagboekCsv } from '../berekeningen/csv.js'
+import { maakDagboekCsv, maakGewichtCsv, maakBewegingCsv } from '../berekeningen/csv.js'
 
 // Maakt een back-upobject met alle gegevens.
 // "nu" en "appVersie" kun je meegeven (handig voor tests).
@@ -73,6 +73,16 @@ export async function wisAlles() {
 // Maakt CSV-tekst van het hele dagboek.
 export async function maakCsv() {
   return maakDagboekCsv(await db.dagboek.toArray())
+}
+
+// CSV-tekst van alle gewichtsmetingen.
+export async function maakGewichtCsvTekst() {
+  return maakGewichtCsv(await db.gewicht.toArray())
+}
+
+// CSV-tekst van alle activiteiten.
+export async function maakBewegingCsvTekst() {
+  return maakBewegingCsv(await db.beweging.toArray(), await db.gewicht.toArray())
 }
 
 // Bestandsnaam voor een back-up, bijvoorbeeld "voedingsdagboek-2026-10-29.json".

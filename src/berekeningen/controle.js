@@ -6,8 +6,9 @@ import { SLEUTELS, VOEDINGSSTOFFEN } from '../gegevens/voedingsstoffen.js'
 import { MAALTIJD_SLEUTELS } from '../gegevens/maaltijden.js'
 import {
   MAX_PER_100, MAX_HOEVEELHEID, MAX_NAAM_LENGTE,
-  MIN_GEWICHT_KG, MAX_GEWICHT_KG, MAX_MINUTEN
+  MIN_GEWICHT_KG, MAX_GEWICHT_KG, MAX_MINUTEN, MIN_LENGTE_CM, MAX_LENGTE_CM
 } from '../gegevens/drempels.js'
+import { ACTIVITEITSNIVEAUS } from '../gegevens/activiteitsniveaus.js'
 import { isGeldigeDatum, isGeldigTijdstip } from './datum.js'
 
 // --- Hulpfuncties ---------------------------------------------------------
@@ -186,6 +187,49 @@ export function controleerBeweging(activiteit) {
       (!isGetal(activiteit.afstandKm) || activiteit.afstandKm < 0 || activiteit.afstandKm > 1000)) {
     fouten.push('Ongeldige afstand.')
   }
+  if (activiteit.notitie !== undefined && activiteit.notitie !== null &&
+      (typeof activiteit.notitie !== 'string' || activiteit.notitie.length > 500)) {
+    fouten.push('Notitie is te lang (max. 500 tekens).')
+  }
+  return fouten
+}
+
+// Het profiel voor de doelhulp: { lengteCm, geboortejaar, formule, activiteitsniveau }.
+// Alles is optioneel (null), want de doelhulp is optioneel.
+export function controleerProfiel(profiel, nu = new Date()) {
+  if (!isObject(profiel)) return ['Geen geldig profiel.']
+  const fouten = []
+  const { lengteCm, geboortejaar, formule, activiteitsniveau } = profiel
+  if (lengteCm !== null && lengteCm !== undefined &&
+      (!isGetal(lengteCm) || lengteCm < MIN_LENGTE_CM || lengteCm > MAX_LENGTE_CM)) {
+    fouten.push(`Lengte moet tussen ${MIN_LENGTE_CM} en ${MAX_LENGTE_CM} cm liggen.`)
+  }
+  const ditJaar = nu.getFullYear()
+  if (geboortejaar !== null && geboortejaar !== undefined &&
+      (!Number.isInteger(geboortejaar) || geboortejaar < ditJaar - 110 || geboortejaar > ditJaar - 12)) {
+    fouten.push('Ongeldig geboortejaar (de doelhulp is voor 12 jaar en ouder).')
+  }
+  if (formule !== null && formule !== undefined && !['man', 'vrouw'].includes(formule)) fouten.push('Formule moet man of vrouw zijn.')
+  if (activiteitsniveau !== null && activiteitsniveau !== undefined &&
+      !ACTIVITEITSNIVEAUS.some((n) => n.sleutel === activiteitsniveau)) {
+    fouten.push('Onbekend activiteitsniveau.')
+  }
+  return fouten
+}
+
+// De dagdoelen: { kcal, eiwit, koolhydraten, vet, vezels, suiker, zout } — getal (per dag) of null.
+export function controleerDoelen(doelen) {
+  if (!isObject(doelen)) return ['Geen geldige doelen.']
+  const fouten = []
+  for (const stof of VOEDINGSSTOFFEN) {
+    const waarde = doelen[stof.sleutel]
+    if (waarde === null || waarde === undefined) continue
+    const max = stof.sleutel === 'kcal' ? 10000 : 1000
+    if (!isGetal(waarde) || waarde <= 0 || waarde > max) fouten.push(`Doel voor ${stof.naam.toLowerCase()} moet tussen 0 en ${max} ${stof.eenheid} liggen.`)
+  }
+  for (const sleutel of Object.keys(doelen)) {
+    if (!SLEUTELS.includes(sleutel)) fouten.push(`Onbekend doel: ${sleutel}.`)
+  }
   return fouten
 }
 
@@ -196,6 +240,11 @@ export function controleerInstelling(instelling) {
   if (typeof instelling.sleutel !== 'string' || instelling.sleutel === '') fouten.push('Instelling zonder naam.')
   if (instelling.sleutel === 'laatsteBackup' && instelling.waarde !== null && !isGeldigTijdstip(instelling.waarde)) {
     fouten.push('Ongeldige datum van laatste back-up.')
+  }
+  if (instelling.sleutel === 'profiel') fouten.push(...controleerProfiel(instelling.waarde))
+  if (instelling.sleutel === 'doelen') fouten.push(...controleerDoelen(instelling.waarde))
+  if (instelling.sleutel === 'bewegingOptellen' && typeof instelling.waarde !== 'boolean') {
+    fouten.push('Instelling "beweging optellen" moet aan of uit zijn.')
   }
   return fouten
 }

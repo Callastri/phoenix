@@ -5,7 +5,9 @@ import { openDialoog, bevestig } from '../onderdelen/dialoog.js'
 import { toonMelding } from '../onderdelen/melding.js'
 import { vandaag, toonDatum } from '../berekeningen/datum.js'
 import { tekstLaatsteBackup } from '../berekeningen/herinnering.js'
-import { maakBackup, leesBackup, herstelBackup, wisAlles, maakCsv, backupBestandsnaam } from '../opslag/backup.js'
+import {
+  maakBackup, leesBackup, herstelBackup, wisAlles, maakCsv, maakGewichtCsvTekst, maakBewegingCsvTekst, backupBestandsnaam
+} from '../opslag/backup.js'
 import { leesInstelling, bewaarInstelling } from '../opslag/instellingen.js'
 import { deelBestand } from '../diensten/delen.js'
 import { statusPermanenteOpslag, vraagPermanenteOpslag, isGeinstalleerd } from '../diensten/toestel.js'
@@ -24,13 +26,26 @@ async function maakBackupBestand() {
   return new File([tekst], backupBestandsnaam(vandaag()), { type: 'application/json' })
 }
 
-async function maakCsvBestand() {
-  // ﻿ zorgt dat Excel letters als é en ë goed toont.
-  const tekst = '﻿' + (await maakCsv())
-  return new File([tekst], backupBestandsnaam(vandaag(), 'csv'), { type: 'text/csv' })
+// Maakt een CSV-bestand. "soort" is 'dagboek', 'gewicht' of 'beweging'.
+async function maakCsvBestand(soort) {
+  const maak = { dagboek: maakCsv, gewicht: maakGewichtCsvTekst, beweging: maakBewegingCsvTekst }[soort]
+  // \uFEFF zorgt dat Excel letters als é en ë goed toont.
+  const tekst = '\uFEFF' + (await maak())
+  return new File([tekst], `voedingsdagboek-${soort}-${vandaag()}.csv`, { type: 'text/csv' })
 }
 
-function sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken) {
+// Een knop die een (al klaargezet) bestand deelt of downloadt.
+function deelKnop(bestand, tekst) {
+  return el('button', {
+    type: 'button', class: 'knop knop-breed',
+    onclick: async () => {
+      const uitkomst = await deelBestand(bestand)
+      if (uitkomst !== 'geannuleerd') toonMelding('CSV bewaard')
+    }
+  }, tekst)
+}
+
+function sectieBackup(backupBestand, csvBestanden, laatsteBackup, herteken) {
   return el('section', { class: 'kaart' },
     el('h2', {}, 'Back-up'),
     el('p', {}, 'Laatste back-up: ', el('strong', {}, tekstLaatsteBackup(laatsteBackup, new Date()))),
@@ -47,13 +62,10 @@ function sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken) {
         herteken()
       }
     }, 'Back-up maken'),
-    el('button', {
-      type: 'button', class: 'knop knop-breed',
-      onclick: async () => {
-        const uitkomst = await deelBestand(csvBestand)
-        if (uitkomst !== 'geannuleerd') toonMelding('CSV bewaard')
-      }
-    }, 'Dagboek als CSV (voor Excel)')
+    el('h3', {}, 'Exporteren als CSV (voor Excel)'),
+    deelKnop(csvBestanden.dagboek, 'Dagboek'),
+    deelKnop(csvBestanden.gewicht, 'Gewicht'),
+    deelKnop(csvBestanden.beweging, 'Beweging')
   )
 }
 
@@ -189,12 +201,18 @@ function sectieOver(nevo) {
 // Tekent het hele scherm.
 export async function toonMeer(container) {
   const herteken = () => toonMeer(container)
-  const [backupBestand, csvBestand, laatsteBackup, status, nevo] = await Promise.all([
-    maakBackupBestand(), maakCsvBestand(), leesInstelling('laatsteBackup'), statusPermanenteOpslag(), laadNevo()
+  const [backupBestand, dagboekCsv, gewichtCsv, bewegingCsv, laatsteBackup, status, nevo] = await Promise.all([
+    maakBackupBestand(), maakCsvBestand('dagboek'), maakCsvBestand('gewicht'), maakCsvBestand('beweging'),
+    leesInstelling('laatsteBackup'), statusPermanenteOpslag(), laadNevo()
   ])
   container.replaceChildren(
     el('h1', { class: 'schermtitel' }, 'Meer'),
-    sectieBackup(backupBestand, csvBestand, laatsteBackup, herteken),
+    el('section', { class: 'kaart' },
+      el('h2', {}, 'Doelen'),
+      el('p', { class: 'hint' }, 'Je dagdoel voor kcal en macro\'s, hulp bij het berekenen, en of beweging meetelt.'),
+      el('a', { class: 'knop knop-hoofd knop-breed', href: '#/doelen' }, 'Doelen instellen')
+    ),
+    sectieBackup(backupBestand, { dagboek: dagboekCsv, gewicht: gewichtCsv, beweging: bewegingCsv }, laatsteBackup, herteken),
     sectieTerugzetten(herteken),
     sectieOpslag(status, herteken),
     sectieWissen(herteken),

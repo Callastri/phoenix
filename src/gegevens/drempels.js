@@ -28,3 +28,13 @@ export const MAX_MINUTEN = 1440
 
 // Na hoeveel dagen zonder back-up de app je eraan herinnert.
 export const BACKUP_HERINNERING_DAGEN = 7
+
+// Onder dit dagdoel (kcal) toont de app een waarschuwing (naast: onder je rustverbruik).
+export const MIN_DOEL_KCAL = 1200
+
+// Ongeveer zoveel kcal zit er in 1 kg lichaamsvet (gebruikt voor het tempo in de doelhulp).
+export const KCAL_PER_KG = 7700
+
+// Lengte in cm voor het profiel.
+export const MIN_LENGTE_CM = 100
+export const MAX_LENGTE_CM = 250

@@ -137,3 +137,7 @@
 .zoek-rij { display: flex; gap: 8px; align-items: center; }
 .zoek-rij .zoekveld { flex: 1; }
 .knop-scan { min-height: 48px; white-space: nowrap; }
+
+/* Dagboek: doel en beweging */
+.budget-tekst { margin: 0 0 8px; text-align: center; font-weight: 600; }
+.beweging-regel { margin: -4px 4px 8px; }

@@ -195,3 +195,50 @@
   box-shadow: 0 0 6px #e5484d;
 }
 .scan-status { font-weight: 600; margin: 8px 0 0; }
+
+/* Grafiek */
+.grafiek-blok { margin: 8px 0; }
+.grafiek-houder { position: relative; }
+.grafiek { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.grafiek-raster { stroke: var(--rand); stroke-width: 1; }
+.grafiek-as { fill: var(--tekst-zacht); font-size: 11px; }
+.grafiek-label { fill: var(--tekst); font-size: 12px; font-weight: 600; }
+.grafiek-lijn { fill: none; stroke: var(--serie-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.grafiek-punt { fill: var(--serie-2); stroke: var(--vlak); stroke-width: 2; }
+.grafiek-kruis { stroke: var(--tekst-zacht); stroke-width: 1; stroke-dasharray: 3 3; }
+.grafiek-ring { fill: none; stroke: var(--tekst); stroke-width: 2; }
+.grafiek-tooltip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--tekst);
+  color: var(--achtergrond);
+  font-size: 0.85rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.grafiek-tooltip[hidden] { display: none; }
+.legenda { display: flex; gap: 16px; list-style: none; padding: 0; margin: 0 0 4px; font-size: 0.9rem; color: var(--tekst-zacht); }
+.legenda li { display: flex; align-items: center; gap: 6px; }
+.legenda-punt { width: 10px; height: 10px; border-radius: 50%; background: var(--serie-2); }
+.legenda-lijn { width: 18px; height: 2px; background: var(--serie-1); }
+
+/* Doelen */
+.eenheid { align-self: center; min-width: 1.5em; color: var(--tekst-zacht); }
+.schakel { display: flex; align-items: center; gap: 12px; min-height: 44px; font-weight: 600; }
+.schakel input { width: 24px; height: 24px; accent-color: var(--accent); }
+.waarschuwing-tekst { color: var(--let-op-tekst); }
+.tab[aria-pressed="true"] { background: var(--vlak); font-weight: 600; box-shadow: var(--schaduw); }
+.knop-rond { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.link-knop { border: none; background: none; padding: 8px 0; color: var(--accent); font: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.tabel { width: 100%; border-collapse: collapse; }
+.tabel th { text-align: left; font-size: 0.85rem; color: var(--tekst-zacht); font-weight: normal; padding: 4px 0; }
+.tabel td { padding: 0; border-top: 1px solid var(--rand); }
+.tabel td + td, .tabel th + th { text-align: right; }
+.progressie { height: 6px; border-radius: 3px; background: var(--rand); overflow: hidden; margin: 6px 0; }
+.progressie > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
